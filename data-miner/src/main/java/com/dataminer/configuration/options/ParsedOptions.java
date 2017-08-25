@@ -1,4 +1,4 @@
-package com.dataminer.configuration;
+package com.dataminer.configuration.options;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

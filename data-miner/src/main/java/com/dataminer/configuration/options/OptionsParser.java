@@ -1,4 +1,4 @@
-package com.dataminer.configuration;
+package com.dataminer.configuration.options;
 
 import java.io.IOException;
 import java.nio.file.Files;

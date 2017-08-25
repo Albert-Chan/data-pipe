@@ -1,4 +1,4 @@
-package com.dataminer.configuration;
+package com.dataminer.configuration.options;
 
 import static com.dataminer.constants.Constants.YMD_FORMAT;
 

@@ -1,4 +1,4 @@
-package com.dataminer.configuration;
+package com.dataminer.configuration.options;
 
 import org.apache.commons.cli.Option;
 
