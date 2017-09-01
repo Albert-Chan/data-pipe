@@ -1,6 +1,6 @@
 package com.dataminer.framework.pipeline;
 
-import com.dataminer.configuration.modules.ModuleConfig;
+import com.dataminer.configuration.modules.InOutBinding;
 import com.dataminer.module.Module;
 import com.dataminer.module.ModuleFactory;
 
@@ -21,17 +21,27 @@ public abstract class Pipeline {
 		context.stop();
 	}
 
-	protected void from() {
+	protected Pipeline from() {
+		return null;
+	}
 
+	public Pipeline fork() {
+		return null;
+	}
+
+	public Pipeline parallel(Module... modules) {
+		return null;
 	}
 
 	public Pipeline forward(String moduleName, String[] args) {
 		Module next = ModuleFactory.createModule(moduleName, context);
-		ModuleConfig config = new ModuleConfig();
-		config.setInput(next.getParent().getOutput());
-		config.set
+
+		InOutBinding binding = new InOutBinding();
+		binding.setInput(.getOutputRDD());
+		binding.setOutput();
+
 		try {
-			next.exec(config);
+			next.doTask(args);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

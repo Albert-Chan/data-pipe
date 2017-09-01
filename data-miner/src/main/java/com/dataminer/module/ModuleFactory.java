@@ -1,6 +1,8 @@
 package com.dataminer.module;
 
-import com.dataminer.configuration.modules.ModuleConfig;
+import java.util.List;
+
+import com.dataminer.configuration.modules.InOutBinding;
 import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.util.MultiTypeMap;
 
@@ -12,7 +14,7 @@ public class ModuleFactory {
 		MultiTypeMap schema = ModuleRegistry.getModuleSchema(moduleName);
 
 		// get Option defs
-		String[] defs = ModuleRegistry.getModuleOptionDefs(moduleName);
+		List<String> defs = ModuleRegistry.getModuleOptionDefs(moduleName);
 
 		
 		
@@ -30,7 +32,7 @@ public class ModuleFactory {
 	 * @param moduleName
 	 * @return
 	 */
-	public static Module createModule(String moduleName, ModuleConfig config) {
+	public static Module createModule(String moduleName, InOutBinding config) {
 		try {
 			return (Module) Class.forName(moduleName).newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
@@ -39,7 +41,7 @@ public class ModuleFactory {
 		}
 	}
 
-	public static Module createModule(String moduleName, Module parent, ModuleConfig config) {
+	public static Module createModule(String moduleName, Module parent, InOutBinding config) {
 		try {
 			return (Module) Class.forName(moduleName).newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {

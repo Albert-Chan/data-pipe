@@ -1,5 +1,7 @@
 package com.dataminer.module;
 
+import java.util.List;
+
 import com.dataminer.util.MultiTypeMap;
 
 public class ModuleRegistry {
@@ -8,8 +10,8 @@ public class ModuleRegistry {
 		return null;
 	}
 
-	// get Option defs
-	public static String[] getModuleOptionDefs(String moduleName) {
+	// get Option definitions
+	public static List<String> getModuleOptionDefs(String moduleName) {
 		return null;
 	}
 }

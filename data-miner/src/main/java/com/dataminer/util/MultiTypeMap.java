@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class MultiTypeMap {
 
-	public class Key<T> {
+	public static class Key<T> {
 		final String identifier;
 		final Class<T> type;
 

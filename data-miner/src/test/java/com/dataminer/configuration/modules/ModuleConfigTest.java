@@ -7,7 +7,7 @@ public class ModuleConfigTest {
 
 	@Test
 	public void test() {
-		ModuleConfig config = new ModuleConfig();
+		InOutBinding config = new InOutBinding();
 		config.setInputSchema("String", String.class);
 		config.setInputSchema("Number", Double.class);
 		config.setOutputSchema("StringOut", String.class);

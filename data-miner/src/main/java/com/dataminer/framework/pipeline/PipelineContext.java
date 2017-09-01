@@ -24,6 +24,10 @@ public class PipelineContext {
 	public PipelineContext(String pipeName) {
 		this.pipeName = pipeName;
 	}
+	
+	public JavaSparkContext getSparkContext() {
+		return ctx;
+	}
 
 	public void init() {
 		SparkConf sparkConf = new SparkConf().setAppName(pipeName);
