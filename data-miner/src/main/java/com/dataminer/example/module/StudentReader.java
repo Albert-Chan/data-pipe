@@ -2,7 +2,6 @@ package com.dataminer.example.module;
 
 import org.apache.spark.api.java.JavaRDD;
 
-import com.dataminer.configuration.modules.InOutBinding;
 import com.dataminer.configuration.options.OptionsParser.OptionsParseException;
 import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildException;
 import com.dataminer.configuration.options.ParsedOptions;
@@ -12,11 +11,6 @@ import com.dataminer.module.Module;
 public class StudentReader extends Module {
 
 	protected PipelineContext context;
-	protected InOutBinding config;
-
-	public StudentReader(InOutBinding config) {
-		this.config = config;
-	}
 
 	public boolean validate() {
 		return true;

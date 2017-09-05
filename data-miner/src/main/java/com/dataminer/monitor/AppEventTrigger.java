@@ -9,7 +9,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.log4j.Logger;
 
-import com.dataminer.util.PassengerConfig;
+import com.dataminer.configuration.ConfigManager;
+import com.dataminer.constants.Constants;
 
 public class AppEventTrigger {
 	protected static final Logger LOG = Logger.getLogger(AppEventTrigger.class);
@@ -23,9 +24,9 @@ public class AppEventTrigger {
 	}
 
 	private AppEventTrigger() {
-		PassengerConfig psgConf = PassengerConfig.getConfig();
-		String brokers = psgConf.getKafkaBrokers();
-		this.topic = psgConf.getMonitorTopicName();
+		ConfigManager conf = ConfigManager.getConfig();
+		String brokers = conf.getProperty(Constants.KAFKA_BROKERS);
+		this.topic = conf.getProperty(Constants.KAFKA_MONITOR_TOPIC);
 
 		if (!brokers.isEmpty() && !this.topic.isEmpty()) {
 			Properties props = new Properties();
@@ -60,7 +61,7 @@ public class AppEventTrigger {
 			close();
 		}
 	}
-	
+
 	public void close() {
 		if (null != producer) {
 			producer.close();

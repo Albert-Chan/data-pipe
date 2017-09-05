@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
 
@@ -23,14 +22,6 @@ public class HikariDBInstance implements AutoCloseable, Serializable {
 	private static HikariDataSource dataSource;
 
 	private static Logger LOG = Logger.getLogger(HikariDBInstance.class);
-
-	public HikariDBInstance(Map<String, String> map) {
-		Properties props = new Properties();
-		for (Map.Entry<String, String> entry : map.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		this.props = props;
-	}
 
 	public HikariDBInstance(Properties props) {
 		this.props = props;

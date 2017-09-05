@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.DataFrame;
 
+import com.dataminer.configuration.PipelineConfig;
 import com.dataminer.constants.AnalyticTimeType;
 import com.dataminer.constants.Constants;
 import com.dataminer.db.HikariDBInstance;
@@ -78,7 +79,7 @@ public class DataFrame2DBUtil {
 		DataFrame expandedDF = withColumnExpanded(df.selectExpr(fieldMapper), tableName, date, type);
 
 		// save to database
-		DataFrameUtil.writeToTable(expandedDF, tableName, PassengerConfig.getConfig().getDBProp());
+		DataFrameUtil.writeToTable(expandedDF, tableName, PipelineConfig.getDBProp("result"));
 	}
 
 	/**
@@ -126,7 +127,7 @@ public class DataFrame2DBUtil {
 	}
 
 	private static void checkAndDelete(String tableFilter) throws Exception {
-		HikariDBInstance hikariDBInstance = new HikariDBInstance(PassengerConfig.getConfig().getResultDBPoolProp());
+		HikariDBInstance hikariDBInstance = new HikariDBInstance(PipelineConfig.getDBProp("result"));
 		String countSQL = "select count(*)" + tableFilter;
 		long count = getRecordsCount(hikariDBInstance, countSQL);
 		if (count > 0L) {
@@ -174,7 +175,7 @@ public class DataFrame2DBUtil {
 		DataFrame expandedDF = withColumnExpanded(df.selectExpr(fieldMapper), tableName, date, type);
 
 		// save to database
-		DataFrameUtil.writeToTable(expandedDF, tableName, PassengerConfig.getConfig().getDBProp());
+		DataFrameUtil.writeToTable(expandedDF, tableName, PipelineConfig.getDBProp("result"));
 	}
 	
 	private static void deleteDataInDBWithSamePeriod(String outputTable, DateTimeWrapper analyticPeriod,

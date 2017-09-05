@@ -1,8 +1,6 @@
 package com.dataminer.framework.pipeline;
 
-import com.dataminer.configuration.modules.InOutBinding;
 import com.dataminer.module.Module;
-import com.dataminer.module.ModuleFactory;
 
 public abstract class Pipeline {
 	PipelineContext context;
@@ -33,20 +31,4 @@ public abstract class Pipeline {
 		return null;
 	}
 
-	public Pipeline forward(String moduleName, String[] args) {
-		Module next = ModuleFactory.createModule(moduleName, context);
-
-		InOutBinding binding = new InOutBinding();
-		binding.setInput(.getOutputRDD());
-		binding.setOutput();
-
-		try {
-			next.doTask(args);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return this;
-	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.clearspring.analytics.util.Lists;
+import com.dataminer.configuration.PipelineConfig;
 import com.dataminer.constants.AnalyticTimeType;
 import com.dataminer.db.HikariDBInstance;
 
@@ -61,7 +62,7 @@ public class SamplingExpansionUtil {
 		}
 
 		int dayAsNumber = date.getDay();
-		try (HikariDBInstance hdb = new HikariDBInstance(PassengerConfig.getConfig().getBaseDBPoolProp());) {
+		try (HikariDBInstance hdb = new HikariDBInstance(PipelineConfig.getDBProp("base"));) {
 			// get the sampling expansion
 			String selectSQL = "select * from TBL_SAMPLING_EXPANSION where TABLE_NAME = ? and START_DATE <= ? and (END_DATE > ? or END_DATE is null)";
 

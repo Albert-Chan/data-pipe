@@ -2,17 +2,16 @@ package com.dataminer.module;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Map;
 
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
 
-import com.dataminer.configuration.modules.InOutBinding;
 import com.dataminer.configuration.options.OptionsParser;
 import com.dataminer.configuration.options.OptionsParser.OptionsParseException;
 import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildException;
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.framework.pipeline.Pipeline;
+import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.util.MultiTypeMap;
 import com.dataminer.util.MultiTypeMap2;
 import com.dataminer.util.MultiTypeMap2.Key;
@@ -20,7 +19,7 @@ import com.dataminer.util.MultiTypeMap2.Key;
 public abstract class Module {
 
 	protected String name;
-	protected JavaSparkContext ctx;
+	protected PipelineContext ctx;
 	protected HashMap<String, Module> parents;
 
 	protected MultiTypeMap schema;
@@ -39,23 +38,15 @@ public abstract class Module {
 		rddOutputs.put(new Key<T>(name, type), rdd);
 	}
 
-	// protected ModuleConfig config;
-	//
-	// public ModuleConfig getConfig() {
-	// return config;
-	// }
-	
-	
 	public String getName() {
 		return name;
 	}
-	
 
-	public JavaSparkContext getContext() {
+	public PipelineContext getContext() {
 		return ctx;
 	}
 
-	public void setContext(JavaSparkContext ctx) {
+	public void setContext(PipelineContext ctx) {
 		this.ctx = ctx;
 	}
 
@@ -83,7 +74,31 @@ public abstract class Module {
 		this.optionDefs = optionDefs;
 	}
 
-	public final void doTask(String[] args) {
+	/**
+	 * A map from current module(acceptor) input stub to upstream module(injector)
+	 * output stub(injector stub).
+	 */
+	private Map<String, InputDescription> binding = new HashMap<>();
+
+	public void setInput(String acceptorStub, Module injector, String injectorStub) {
+		binding.put(acceptorStub, new InputDescription(injector, injectorStub));
+	}
+
+	public InputDescription getInput(String acceptorStub) {
+		return binding.get(acceptorStub);
+	}
+
+	static class InputDescription {
+		Module injector;
+		String injectorStub;
+
+		InputDescription(Module module, String injectorStub) {
+			this.injector = module;
+			this.injectorStub = injectorStub;
+		}
+	}
+
+	protected void doTask(String[] args) {
 		if (validate() && rerunIfExist) {
 			try {
 				OptionsParser parser = new OptionsParser(optionDefs);
@@ -100,15 +115,16 @@ public abstract class Module {
 		}
 	}
 
-	public abstract boolean validate();
+	public boolean validate() {
+		return true;
+	}
 
 	public abstract void exec(ParsedOptions options) throws Exception;
 
 	public void sink() {
 
 	}
-	
-	
+
 	public Pipeline fork() {
 		return null;
 	}
@@ -117,24 +133,16 @@ public abstract class Module {
 		return null;
 	}
 
-	public Module forward(String moduleName, String[] args, Function<> binding) {
+	public Module forward(PipelineContext context, String moduleName, String[] args, BindingGenerator gen) {
 		Module next = ModuleFactory.createModule(moduleName, context);
-
-		InOutBinding binding = new InOutBinding();
-		binding.setInput(.getOutputRDD());
-		binding.setOutput();
+		gen.bind(this, next);
 
 		try {
 			next.doTask(args);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		return next;
 	}
-	
-	
-	
 
 }
