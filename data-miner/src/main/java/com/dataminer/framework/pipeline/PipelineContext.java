@@ -11,7 +11,7 @@ public class PipelineContext {
 	private String pipeName;
 
 	private JavaSparkContext ctx;
-	private ConfigManager conf;
+	private ConfigManager conf = ConfigManager.getConfig();
 	//private OptionsParser optionsParser;
 	private static final AppEventTrigger TRIGGER = AppEventTrigger.get();
 	MessageCombiner mc = new MessageCombiner();
@@ -29,10 +29,10 @@ public class PipelineContext {
 		return ctx;
 	}
 
-	public void init() {
+	public void init(String[] args) {
 		SparkConf sparkConf = new SparkConf().setAppName(pipeName);
 		ctx = new JavaSparkContext(sparkConf);
-		//optionsParser = new OptionsParser();
+		conf.addConfigFromJar(fileName);
 	}
 
 	protected void stop() {

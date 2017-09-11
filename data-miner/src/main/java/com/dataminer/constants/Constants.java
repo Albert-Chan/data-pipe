@@ -19,7 +19,7 @@ public interface Constants {
 	public static final String DB_USER = "db.username";
 	public static final String DB_PASSWORD = "db.password";
 
-	public static final String ORACLE_DEFAULT_DRIVER = "oracle.jdbc.driver.OracleDriver";
+	public static final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
 	
 	public static final String KAFKA_BROKERS = "kafka.brokers";
 	public static final String KAFKA_MONITOR_TOPIC = "kafka.monitor.topic";

@@ -2,24 +2,22 @@ package com.dataminer.framework.pipeline;
 
 import com.dataminer.module.Module;
 
-public abstract class Pipeline {
+public class Pipeline {
 	PipelineContext context;
 
 	public Pipeline(String pipeName) {
 		context = new PipelineContext(pipeName);
 	}
 
-	public abstract void run();
-
-	protected void start(String[] args) {
-		context.init();
+	public void start(String[] args) {
+		context.init(args);
 	}
 
-	protected void end() {
+	public void end() {
 		context.stop();
 	}
 
-	protected Pipeline from() {
+	public Pipeline from() {
 		return null;
 	}
 
