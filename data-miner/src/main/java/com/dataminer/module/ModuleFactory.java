@@ -5,6 +5,7 @@ import java.util.List;
 import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.util.MultiTypeMap;
 
+@Deprecated
 public class ModuleFactory {
 
 	public static Module createModule(String moduleName, PipelineContext context) {
@@ -21,8 +22,8 @@ public class ModuleFactory {
 			return null;
 		}
 		m.setContext(context);
-		m.setSchema(schema);
-		m.setOptionDefs(defs);
+//		m.setSchema(schema);
+//		m.setOptionDefs(defs);
 		return m;
 	}
 

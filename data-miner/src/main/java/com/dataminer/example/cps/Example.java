@@ -8,22 +8,26 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-import com.dataminer.framework.pipeline.PipelineContext;
+import com.dataminer.monitor.AppEventTrigger;
+import com.dataminer.monitor.MessageCombiner;
 
 public class Example {
 
-	protected PipelineContext context;
-
-	public static JavaSparkContext getContext() {
+	private static final JavaSparkContext ctx = createContext();
+	private static JavaSparkContext createContext() {
 		SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("example");
 		JavaSparkContext ctx = new JavaSparkContext(sparkConf);
 		return ctx;
 	}
+	
+	public static JavaSparkContext getContext() {
+		return ctx;
+	}
 
 	static class InputReader implements SourceModuleFunction<Student> {
-		private ModuleFunction<Student> next;
+		private InterimModuleFunction<Student> next;
 
-		public InputReader(ModuleFunction<Student> next) {
+		public InputReader(InterimModuleFunction<Student> next) {
 			this.next = next;
 		}
 
@@ -36,10 +40,10 @@ public class Example {
 		}
 	}
 
-	static class AgeFilter implements ModuleFunction<Student> {
-		private ModuleFunction<Student> next;
+	static class AgeFilter implements InterimModuleFunction<Student> {
+		private SinkModuleFunction<Student> next;
 
-		public AgeFilter(ModuleFunction<Student> next) {
+		public AgeFilter(SinkModuleFunction<Student> next) {
 			this.next = next;
 		}
 
@@ -49,16 +53,40 @@ public class Example {
 		}
 	}
 
-	public static ModuleFunction<Student> sink = (JavaRDD<Student> s) -> {
+	public static SinkModuleFunction<Student> sink = (JavaRDD<Student> s) -> {
 		List<Student> filtered = s.collect();
 		System.out.println(s);
 		filtered.toString();
 		System.out.println(filtered.toString());
 	};
 
+	private static final AppEventTrigger TRIGGER = AppEventTrigger.get();
+	
 	public static void main(String[] args) {
+		
+		/**
+		 * args includes:
+		 * appId, appName, overall options
+		 */
+		MessageCombiner mc = new MessageCombiner();
+		mc.partOfKey("appId", JavaSparkContext.toSparkContext(getContext()).applicationId());
+		mc.partOfKey("appName", "CPS based pipeline example");
+		
+		TRIGGER.send(mc.event("action", "appStart"));
+		
 		new InputReader(new AgeFilter(sink)).apply();
+		
+		TRIGGER.send(mc.event("action", "appEnd "));
+		
 	}
+	
+	
+	
+	
+
+	
+	
+	
 
 }
 

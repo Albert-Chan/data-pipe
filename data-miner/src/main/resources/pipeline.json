@@ -1,0 +1,9 @@
+HDFSReader hdfsReader;
+
+StudentInputReader studentInput;
+studentInput.input.hdfsInput = hdfsReader.hdfsOutput;
+
+AgeFilter ageFilter;
+ageFilter.input.allStudent = studentInput.allStudent;
+
+

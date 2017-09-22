@@ -2,6 +2,7 @@ package com.dataminer.framework.pipeline;
 
 import com.dataminer.module.Module;
 
+@Deprecated
 public class Pipeline {
 	PipelineContext context;
 
@@ -10,7 +11,7 @@ public class Pipeline {
 	}
 
 	public void start(String[] args) {
-		context.init(args);
+		//context.init(args);
 	}
 
 	public void end() {

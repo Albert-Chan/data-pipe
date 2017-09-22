@@ -1,0 +1,34 @@
+HDFSReader : {
+	output: [{
+		name: hdfsOutput,
+		type: JavaRDD,
+		valueType: String,
+	}]
+}
+
+StudentGenerator: {
+	input: [{
+		name: hdfsInput,
+		type: JavaRDD,
+		valueType: String,
+	}],
+	output: [{
+		name: allStudent,
+		type: JavaRDD,
+		valueType: Student
+	}]
+},
+
+AgeFilter: {
+	input: [{
+		name: allStudent,
+		type: JavaRDD,
+		valueType: Student
+	}],
+	output : [{
+		name: filtedStudent,
+		type: JavaRDD,
+		valueType: Student
+	}]
+}
+
