@@ -14,8 +14,8 @@ import com.dataminer.schema.Schema.BindingPort;
 
 public class StudentGenerator extends Module {
 
-	public StudentGenerator(String[] args) {
-		super(args);
+	public StudentGenerator(String[] args, Context context) {
+		super(args, context);
 	}
 	
 	@Override

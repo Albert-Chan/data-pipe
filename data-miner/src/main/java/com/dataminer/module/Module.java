@@ -8,32 +8,22 @@ import com.dataminer.configuration.options.OptionsParser;
 import com.dataminer.configuration.options.OptionsParser.OptionsParseException;
 import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildException;
 import com.dataminer.configuration.options.ParsedOptions;
-import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.schema.Schema;
 
 public abstract class Module {
 
 	protected String name;
-
 	protected Schema schema;
+	protected Context context;
 
-	protected PipelineContext ctx;
 	protected boolean rerunIfExist = true;
 
 	public String getName() {
 		return name;
 	}
 
-	public PipelineContext getContext() {
-		return ctx;
-	}
-
-	public void setContext(PipelineContext ctx) {
-		this.ctx = ctx;
-	}
-	
-	
-	public Module(String[] args) {
+	public Module(String[] args, Context context) {
+		this.context = context;
 		prepareSchema();
 		bindingDoneSignal = new CountDownLatch(schema.getInputSchemaSize());
 		// wait for all bindings to complete
@@ -43,7 +33,6 @@ public abstract class Module {
 		}
 		doTask(args);
 	}
-	
 
 	/**
 	 * A map from current module(acceptor) input stub to the actual input value
@@ -86,23 +75,21 @@ public abstract class Module {
 				ParsedOptions parsedOptions = parser.parse(args);
 				exec(parsedOptions);
 			} catch (OptionsParserBuildException e) {
-
+				e.printStackTrace();
 			} catch (OptionsParseException e) {
-
+				e.printStackTrace();
 			} catch (Exception e) {
-
+				e.printStackTrace();
 			}
 		}
 	}
-	
-	
 
 	public boolean validate() {
 		return true;
 	}
 
 	public abstract void prepareSchema();
-	
+
 	public abstract void exec(ParsedOptions options) throws Exception;
 
 }

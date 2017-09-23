@@ -7,15 +7,16 @@ import org.apache.spark.api.java.JavaRDD;
 
 import com.dataminer.configuration.options.OptionsParser.OptionsParseException;
 import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildException;
+import com.dataminer.example.cps.SinkModuleFunction;
 import com.dataminer.configuration.options.ParsedOptions;
-import com.dataminer.framework.pipeline.Context;
+import com.dataminer.module.Context;
 import com.dataminer.module.Module;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
 
-public class AgeFilter extends Module {
+public class Collector extends Module {
 
-	public AgeFilter(String[] args, Context context) {
+	public Collector(String[] args, Context context) {
 		super(args, context);
 	}
 
@@ -23,8 +24,7 @@ public class AgeFilter extends Module {
 		schema = new Schema();
 		List<String> optionDef = Arrays.asList("g,	group,	hasArg,	required, , toString, The application group name");
 		schema.addOptionsDefinition(optionDef);
-		schema.addInputSchema(new BindingPort("allStudent", "JavaRDD", "Student"));
-		schema.addOutputSchema(new BindingPort("filteredStudent", "JavaRDD", "Student"));
+		schema.addInputSchema(new BindingPort("filteredStudent", "JavaRDD", "Student"));
 	}
 
 	public boolean validate() {
@@ -32,8 +32,8 @@ public class AgeFilter extends Module {
 	}
 
 	public void exec(ParsedOptions parsedOptions) throws OptionsParserBuildException, OptionsParseException {
-		JavaRDD<Student> output = ((JavaRDD<Student>) getInputValue("allStudent")).filter(s -> s.getAge() > 17);
-		addOutputValue("filteredStudent", output);
+		List<Student> filtered = ((JavaRDD<Student>) getInputValue("filteredStudent")).collect();
+		System.out.println(filtered.toString());
 	}
 
 }

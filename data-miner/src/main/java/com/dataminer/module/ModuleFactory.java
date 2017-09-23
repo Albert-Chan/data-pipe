@@ -21,7 +21,7 @@ public class ModuleFactory {
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			return null;
 		}
-		m.setContext(context);
+//		m.setContext(context);
 //		m.setSchema(schema);
 //		m.setOptionDefs(defs);
 		return m;

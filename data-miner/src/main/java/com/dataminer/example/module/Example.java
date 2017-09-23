@@ -1,12 +1,8 @@
 package com.dataminer.example.module;
 
-import java.util.List;
-
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-import com.dataminer.example.cps.SinkModuleFunction;
 import com.dataminer.monitor.AppEventTrigger;
 import com.dataminer.monitor.MessageCombiner;
 
@@ -23,13 +19,6 @@ public class Example {
 		return ctx;
 	}
 
-	public static SinkModuleFunction<Student> sink = (JavaRDD<Student> s) -> {
-		List<Student> filtered = s.collect();
-		System.out.println(s);
-		filtered.toString();
-		System.out.println(filtered.toString());
-	};
-
 	private static final AppEventTrigger TRIGGER = AppEventTrigger.get();
 	
 	public static void main(String[] args) {
@@ -45,15 +34,20 @@ public class Example {
 		//TRIGGER.send(mc.event("action", "appStart"));
 		System.out.println(mc.event("action", "appStart").getMessage());
 		
-		HDFSReader hdfsReader = new HDFSReader(new String[] {});
-		StudentGenerator studentGen = new StudentGenerator(new String[] {});
-		AgeFilter ageFilter = new AgeFilter(new String[] {});
+		HDFSReader hdfsReader = new HDFSReader(new String[] {"-g", "test", "-i", "the input path"}, getContext());
+		
+		StudentGenerator studentGen = new StudentGenerator(new String[] {"-g", "test"});
+		AgeFilter ageFilter = new AgeFilter(new String[] {"-g", "test"});
+		Collector collector = new Collector(new String[] {"-g", "test"});
 		
 		studentGen.bind("hdfsInput", hdfsReader, "hdfsOutput");
 		ageFilter.bind("allStudent", studentGen, "allStudent");
+		collector.bind("filteredStudent", ageFilter, "filteredStudent");
 		
 		//TRIGGER.send(mc.event("action", "appEnd"));
 		System.out.println(mc.event("action", "appEnd").getMessage());
+		
+		getContext().close();
 	}
 
 }
