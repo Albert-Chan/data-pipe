@@ -1,16 +1,15 @@
 package com.dataminer.framework.pipeline;
 
+import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dataminer.configuration.ConfigManager;
 import com.dataminer.monitor.AppEventTrigger;
 import com.dataminer.monitor.MessageCombiner;
 
-@Deprecated
 public class Context {
 	private String pipeName;
 
-	private JavaSparkContext ctx;
 	private ConfigManager conf = ConfigManager.getConfig();
 	//private OptionsParser optionsParser;
 	private static final AppEventTrigger TRIGGER = AppEventTrigger.get();
@@ -21,6 +20,17 @@ public class Context {
 //		mc.partOfKey("group", group);
 //		mc.partOfKey("analyticPeriod", analyticDay.formatTime("yyyy/MM/dd"));
 //	}
+	
+	private static final JavaSparkContext ctx = createContext();
+	private static JavaSparkContext createContext() {
+		SparkConf sparkConf = new SparkConf().setMaster("local").setAppName("example");
+		JavaSparkContext ctx = new JavaSparkContext(sparkConf);
+		return ctx;
+	}
+	
+	public static JavaSparkContext getContext() {
+		return ctx;
+	}	
 
 	public Context(String pipeName) {
 		this.pipeName = pipeName;
@@ -36,7 +46,7 @@ public class Context {
 //		conf.addConfigFromJar("configFileName");
 //	}
 
-	protected void stop() {
+	public void stop() {
 		ctx.stop();
 		TRIGGER.close();
 	}

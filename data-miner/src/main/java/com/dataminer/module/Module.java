@@ -1,22 +1,40 @@
 package com.dataminer.module;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
+import java.util.Map.Entry;
 
 import com.dataminer.configuration.options.OptionsParser;
 import com.dataminer.configuration.options.OptionsParser.OptionsParseException;
 import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildException;
 import com.dataminer.configuration.options.ParsedOptions;
+import com.dataminer.framework.pipeline.Context;
 import com.dataminer.schema.Schema;
 
 public abstract class Module {
 
 	protected String name;
-	protected Schema schema;
-	protected Context context;
 
-	protected boolean rerunIfExist = true;
+	protected abstract Schema getSchema();
+
+	protected Context context;
+	protected ParsedOptions parsedOptions;
+
+	protected boolean finished = false;
+
+	protected List<Module> parents = new ArrayList<>();
+
+	protected String[] args;
+
+	public void addParent(Module parent) {
+		parents.add(parent);
+	}
+
+	public List<Module> getParents() {
+		return parents;
+	}
 
 	public String getName() {
 		return name;
@@ -24,29 +42,32 @@ public abstract class Module {
 
 	public Module(String[] args, Context context) {
 		this.context = context;
-		prepareSchema();
-		bindingDoneSignal = new CountDownLatch(schema.getInputSchemaSize());
-		// wait for all bindings to complete
-		try {
-			bindingDoneSignal.await();
-		} catch (InterruptedException e) {
+		this.args = args;
+	}
+
+	private Map<String, ModuleBindingPort> binding = new HashMap<>();
+
+	class ModuleBindingPort {
+		Module module;
+		String bindingPortName;
+
+		ModuleBindingPort(Module module, String bp) {
+			this.module = module;
+			this.bindingPortName = bp;
 		}
-		doTask(args);
 	}
 
 	/**
 	 * A map from current module(acceptor) input stub to the actual input value
 	 */
-	private Map<String, Object> binding = new HashMap<>();
-
-	private CountDownLatch bindingDoneSignal = null;
+	private Map<String, Object> actualBinding = new HashMap<>();
 
 	public Object getInputValue(String acceptorStub) {
-		return binding.get(acceptorStub);
+		return actualBinding.get(acceptorStub);
 	}
 
 	public void setInputValue(String acceptorStub, Module producerModule, String outputName) {
-		binding.put(acceptorStub, producerModule.getOutputValue(outputName));
+		actualBinding.put(acceptorStub, producerModule.getOutputValue(outputName));
 	}
 
 	/**
@@ -63,33 +84,50 @@ public abstract class Module {
 	}
 
 	public void bind(String localName, Module remoteModule, String remoteName) {
+		this.addParent(remoteModule);
 		// add binding
-		binding.put(localName, remoteModule.getOutputValue(remoteName));
-		bindingDoneSignal.countDown();
+		binding.put(localName, new ModuleBindingPort(remoteModule, remoteName));
 	}
 
-	protected void doTask(String[] args) {
-		if (validate() && rerunIfExist) {
-			try {
-				OptionsParser parser = new OptionsParser(schema.getOptionsDefinition());
-				ParsedOptions parsedOptions = parser.parse(args);
-				exec(parsedOptions);
-			} catch (OptionsParserBuildException e) {
-				e.printStackTrace();
-			} catch (OptionsParseException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
+	public void actualBind() {
+		// add binding
+		for (Entry<String, ModuleBindingPort> e : binding.entrySet()) {
+			ModuleBindingPort mbp = e.getValue();
+			actualBinding.put(e.getKey(), mbp.module.getOutputValue(mbp.bindingPortName));
+		}
+	}
+
+	public void doTask() {
+		if (finished) {
+			return;
+		}
+		if (validate()) {
+			for (Module m : parents) {
+				m.doTask();
 			}
+			actualBind();
+			exec(parsedOptions);
 		}
 	}
 
 	public boolean validate() {
+		try {
+			OptionsParser parser = new OptionsParser(getSchema().getOptionsDefinition());
+			parsedOptions = parser.parse(args);
+		} catch (OptionsParserBuildException e) {
+			e.printStackTrace();
+			return false;
+		} catch (OptionsParseException e) {
+			e.printStackTrace();
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+
 		return true;
 	}
 
-	public abstract void prepareSchema();
-
-	public abstract void exec(ParsedOptions options) throws Exception;
+	protected abstract void exec(ParsedOptions options);
 
 }
