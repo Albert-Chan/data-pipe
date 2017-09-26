@@ -13,7 +13,7 @@ import com.dataminer.schema.Schema.BindingPort;
 
 public class StudentGenerator extends Module {
 
-	public static Schema schema = new Schema();
+	private static Schema schema = new Schema();
 	static {
 		prepareSchema();
 	}

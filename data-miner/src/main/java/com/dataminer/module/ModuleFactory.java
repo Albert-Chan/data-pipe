@@ -1,55 +1,31 @@
 package com.dataminer.module;
 
-import java.util.List;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
-import com.dataminer.framework.pipeline.PipelineContext;
-import com.dataminer.util.MultiTypeMap;
+import com.dataminer.framework.pipeline.Context;
 
-@Deprecated
 public class ModuleFactory {
-
-	public static Module createModule(String moduleName, PipelineContext context) {
-		// get schema
-		MultiTypeMap schema = ModuleRegistry.getModuleSchema(moduleName);
-		// get Option defs
-		List<String> defs = ModuleRegistry.getModuleOptionDefs(moduleName);
-		
-		// instantiate the module
-		Module m;
+	public static <T extends Module> T create(Class<T> moduleName, String[] args, Context context)
+			throws ModuleCreationException {
 		try {
-			m = (Module) Class.forName(moduleName).newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			return null;
+		Constructor<T> constructor = moduleName.getConstructor(String[].class, Context.class);
+		return constructor.newInstance(args, context);}
+		catch(InstantiationException| IllegalAccessException| IllegalArgumentException| InvocationTargetException|
+				NoSuchMethodException| SecurityException e) {
+			throw new ModuleCreationException(e);
 		}
-//		m.setContext(context);
-//		m.setSchema(schema);
-//		m.setOptionDefs(defs);
-		return m;
 	}
+	
+	public static class ModuleCreationException extends Exception {
+		private static final long serialVersionUID = 9073903913528451230L;
 
-//	/**
-//	 * Creates a producer module, normally crawls an outer data source as input.
-//	 * 
-//	 * @param moduleName
-//	 * @return
-//	 */
-//	public static Module createModule(String moduleName, InOutBinding config) {
-//		try {
-//			return (Module) Class.forName(moduleName).newInstance();
-//		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
-//
-//	public static Module createModule(String moduleName, Module parent, InOutBinding config) {
-//		try {
-//			return (Module) Class.forName(moduleName).newInstance();
-//		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
-
+		public ModuleCreationException(String msg) {
+			super(msg);
+		}
+		
+		public ModuleCreationException(Throwable cause) {
+			super(cause);
+		}
+	}
 }
