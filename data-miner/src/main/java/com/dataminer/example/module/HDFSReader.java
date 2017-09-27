@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.spark.api.java.JavaRDD;
 
 import com.dataminer.configuration.options.ParsedOptions;
-import com.dataminer.framework.pipeline.Context;
+import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.module.Module;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
@@ -30,7 +30,7 @@ public class HDFSReader extends Module {
 		return schema;
 	}
 
-	public HDFSReader(String[] args, Context context) {
+	public HDFSReader(String[] args, PipelineContext context) {
 		super(args, context);
 	}
 

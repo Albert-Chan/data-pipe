@@ -1,33 +1,49 @@
 package com.dataminer.framework.pipeline;
 
-import com.dataminer.module.Module;
+import java.util.HashSet;
+import java.util.Set;
 
-@Deprecated
-public class Pipeline {
-	PipelineContext context;
+import org.apache.spark.api.java.JavaSparkContext;
+
+import com.dataminer.module.Module;
+import com.dataminer.module.ModuleFactory;
+import com.dataminer.module.ModuleFactory.ModuleCreationException;
+import com.dataminer.module.SinkModule;
+import com.dataminer.monitor.AppEventTrigger;
+import com.dataminer.monitor.MessageCombiner;
+
+public class Pipeline {	
+	private PipelineContext context;
+	private static final AppEventTrigger TRIGGER = AppEventTrigger.get();
+	private MessageCombiner mc = new MessageCombiner();
+	
+	private Set<SinkModule> sinkers = new HashSet<>();
 
 	public Pipeline(String pipeName) {
-		context = new PipelineContext(pipeName);
+		this.context = new PipelineContext(pipeName);
+		mc.partOfKey("appId", JavaSparkContext.toSparkContext(context.getJavaSparkContext()).applicationId());
+		mc.partOfKey("pipeName", "pipeline example");
+	}
+	
+	public MessageCombiner getMessageCombiner() {
+		return mc;
 	}
 
-	public void start(String[] args) {
-		//context.init(args);
+	public <T extends Module> T createModule(Class<T> moduleName, String[] args)
+			throws ModuleCreationException {
+		T module = ModuleFactory.create(moduleName, args, context);
+		if (module instanceof SinkModule) {
+			sinkers.add((SinkModule) module);
+		}
+		return module;
 	}
 
-	public void end() {
-		context.stop();
+	public void run() {
+		for (SinkModule sink : sinkers) {
+			sink.doTask();
+		}
+		context.close();
+		TRIGGER.close();
 	}
-
-	public Pipeline from() {
-		return null;
-	}
-
-	public Pipeline fork() {
-		return null;
-	}
-
-	public Pipeline parallel(Module... modules) {
-		return null;
-	}
-
+	
 }

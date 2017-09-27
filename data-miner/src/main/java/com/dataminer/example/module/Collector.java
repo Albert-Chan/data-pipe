@@ -6,12 +6,12 @@ import java.util.List;
 import org.apache.spark.api.java.JavaRDD;
 
 import com.dataminer.configuration.options.ParsedOptions;
-import com.dataminer.framework.pipeline.Context;
-import com.dataminer.module.Module;
+import com.dataminer.framework.pipeline.PipelineContext;
+import com.dataminer.module.SinkModule;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
 
-public class Collector extends Module {
+public class Collector extends SinkModule {
 	private static Schema schema = new Schema();
 	static {
 		prepareSchema();
@@ -27,7 +27,7 @@ public class Collector extends Module {
 		return schema;
 	}
 
-	public Collector(String[] args, Context context) {
+	public Collector(String[] args, PipelineContext context) {
 		super(args, context);
 	}
 

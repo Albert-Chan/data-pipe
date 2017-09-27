@@ -10,7 +10,7 @@ import com.dataminer.configuration.options.OptionsParser;
 import com.dataminer.configuration.options.OptionsParser.OptionsParseException;
 import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildException;
 import com.dataminer.configuration.options.ParsedOptions;
-import com.dataminer.framework.pipeline.Context;
+import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.schema.Schema;
 
 public abstract class Module {
@@ -19,7 +19,7 @@ public abstract class Module {
 
 	protected abstract Schema getSchema();
 
-	protected Context context;
+	protected PipelineContext context;
 	protected ParsedOptions parsedOptions;
 
 	protected boolean finished = false;
@@ -40,7 +40,7 @@ public abstract class Module {
 		return name;
 	}
 
-	public Module(String[] args, Context context) {
+	public Module(String[] args, PipelineContext context) {
 		this.context = context;
 		this.args = args;
 	}

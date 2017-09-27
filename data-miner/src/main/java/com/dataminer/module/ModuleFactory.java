@@ -3,13 +3,13 @@ package com.dataminer.module;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import com.dataminer.framework.pipeline.Context;
+import com.dataminer.framework.pipeline.PipelineContext;
 
 public class ModuleFactory {
-	public static <T extends Module> T create(Class<T> moduleName, String[] args, Context context)
+	public static <T extends Module> T create(Class<T> moduleName, String[] args, PipelineContext context)
 			throws ModuleCreationException {
 		try {
-		Constructor<T> constructor = moduleName.getConstructor(String[].class, Context.class);
+		Constructor<T> constructor = moduleName.getConstructor(String[].class, PipelineContext.class);
 		return constructor.newInstance(args, context);}
 		catch(InstantiationException| IllegalAccessException| IllegalArgumentException| InvocationTargetException|
 				NoSuchMethodException| SecurityException e) {
