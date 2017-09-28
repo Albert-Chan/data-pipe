@@ -13,11 +13,13 @@ import com.dataminer.schema.Schema.BindingPort;
 
 public class StudentGenerator extends Module {
 
+	public static final String HDFS_INPUT = "hdfsInput";
+	public static final String ALL_STUDENT = "allStudent";
 	private static Schema schema = new Schema();
 	static {
 		prepareSchema();
 	}
-	
+
 	public StudentGenerator(String[] args, PipelineContext context) {
 		super(args, context);
 	}
@@ -25,8 +27,8 @@ public class StudentGenerator extends Module {
 	public static void prepareSchema() {
 		List<String> optionDef = Arrays.asList("g,	group,	hasArg, required, , toString,	The application group");
 		schema.addOptionsDefinition(optionDef);
-		schema.addInputSchema(new BindingPort("hdfsInput", "JavaRDD", "String"));
-		schema.addOutputSchema(new BindingPort("allStudent", "JavaRDD", "Student"));
+		schema.addInputSchema(new BindingPort(HDFS_INPUT, JavaRDD.class, "String"));
+		schema.addOutputSchema(new BindingPort(ALL_STUDENT, JavaRDD.class, "Student"));
 	}
 
 	@Override
@@ -35,18 +37,13 @@ public class StudentGenerator extends Module {
 	}
 
 	@Override
-	public boolean validate() {
-		return super.validate();
-	}
-
-	@Override
 	public void exec(ParsedOptions parsedOptions) {
 		@SuppressWarnings("unchecked")
-		JavaRDD<Student> output = ((JavaRDD<String>) getInputValue("hdfsInput")).map(line -> {
+		JavaRDD<Student> output = ((JavaRDD<String>) getInputValue(HDFS_INPUT)).map(line -> {
 			String[] attrs = line.split(",");
 			return new Student(attrs[0], Integer.parseInt(attrs[1]));
 		});
-		addOutputValue("allStudent", output);
+		addOutputValue(ALL_STUDENT, output);
 	}
 
 }

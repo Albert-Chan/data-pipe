@@ -12,6 +12,10 @@ import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
 
 public class AgeFilter extends Module {
+	
+	public static final String ALL_STUDENT = "allStudent";
+	public static final String FILTERED_STUDENT = "filteredStudent";
+	
 	private static Schema schema = new Schema();
 	static {
 		prepareSchema();
@@ -20,29 +24,24 @@ public class AgeFilter extends Module {
 	public static void prepareSchema() {
 		List<String> optionDef = Arrays.asList("g,	group,	hasArg,	required, , toString, The application group name");
 		schema.addOptionsDefinition(optionDef);
-		schema.addInputSchema(new BindingPort("allStudent", "JavaRDD", "Student"));
-		schema.addOutputSchema(new BindingPort("filteredStudent", "JavaRDD", "Student"));
+		schema.addInputSchema(new BindingPort(ALL_STUDENT, JavaRDD.class, "Student"));
+		schema.addOutputSchema(new BindingPort(FILTERED_STUDENT, JavaRDD.class, "Student"));
 	}
 
 	public AgeFilter(String[] args, PipelineContext context) {
 		super(args, context);
 	}
-	
+
 	@Override
 	public Schema getSchema() {
 		return schema;
 	}
 
 	@Override
-	public boolean validate() {
-		return super.validate();
-	}
-
-	@Override
 	public void exec(ParsedOptions parsedOptions) {
 		@SuppressWarnings("unchecked")
-		JavaRDD<Student> output = ((JavaRDD<Student>) getInputValue("allStudent")).filter(s -> s.getAge() > 17);
-		addOutputValue("filteredStudent", output);
+		JavaRDD<Student> output = ((JavaRDD<Student>) getInputValue(ALL_STUDENT)).filter(s -> s.getAge() > 17);
+		addOutputValue(FILTERED_STUDENT, output);
 	}
 
 }

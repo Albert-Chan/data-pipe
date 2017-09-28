@@ -12,7 +12,9 @@ import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
 
 public class Collector extends SinkModule {
-	private static Schema schema = new Schema();
+	
+	public static final String OUTPUT_STUDENT = "outputStudent";
+	public static Schema schema = new Schema();
 	static {
 		prepareSchema();
 	}
@@ -20,7 +22,7 @@ public class Collector extends SinkModule {
 	public static void prepareSchema() {
 		List<String> optionDef = Arrays.asList("g,	group,	hasArg,	required, , toString, The application group name");
 		schema.addOptionsDefinition(optionDef);
-		schema.addInputSchema(new BindingPort("filteredStudent", "JavaRDD", "Student"));
+		schema.addInputSchema(new BindingPort(OUTPUT_STUDENT, JavaRDD.class, "Student"));
 	}
 	
 	public Collector(String[] args, PipelineContext context) {
@@ -33,14 +35,9 @@ public class Collector extends SinkModule {
 	}
 
 	@Override
-	public boolean validate() {
-		return true;
-	}
-
-	@Override
 	public void exec(ParsedOptions parsedOptions) {
 		@SuppressWarnings("unchecked")
-		List<Student> filtered = ((JavaRDD<Student>) getInputValue("filteredStudent")).collect();
+		List<Student> filtered = ((JavaRDD<Student>) getInputValue(OUTPUT_STUDENT)).collect();
 		System.out.println(filtered.toString());
 	}
 

@@ -11,15 +11,15 @@ import com.dataminer.module.Module;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
 
-public class HDFSReader extends Module {
+public class StudentLocation extends Module {
 
-	public static final String HDFS_OUTPUT = "hdfsOutput";
+	public static final String STUDENT_COUNTRY = "studentCountry";
 	public static Schema schema = new Schema();
 	static {
 		prepareSchema();
 	}
 
-	public HDFSReader(String[] args, PipelineContext context) {
+	public StudentLocation(String[] args, PipelineContext context) {
 		super(args, context);
 	}
 	
@@ -33,17 +33,21 @@ public class HDFSReader extends Module {
 				"i, input,	hasArg, required, , toString,	The HDFS input path");
 
 		schema.addOptionsDefinition(optionDef);
-		schema.addOutputSchema(new BindingPort(HDFS_OUTPUT, JavaRDD.class, "String"));
+		schema.addOutputSchema(new BindingPort(STUDENT_COUNTRY, JavaRDD.class, "StudentCountry"));
 	}
 
 	@Override
 	public void exec(ParsedOptions parsedOptions) {
 		String input = parsedOptions.get("input");
+		System.out.println(input);
 		// JavaRDD<String> output = context.textFile(input);
 
-		JavaRDD<String> output = context.getJavaSparkContext().parallelize(Arrays.asList("S1,17", "S2,18", "S3,23"));
+		JavaRDD<StudentCountry> output = context.getJavaSparkContext().parallelize(Arrays.asList("S1,USA", "S2,CHN", "S3,GER")).map(line -> {
+			String[] attrs = line.split(",");
+			return new StudentCountry(attrs[0], attrs[1]);
+		});
 
-		addOutputValue(HDFS_OUTPUT, output);
+		addOutputValue(STUDENT_COUNTRY, output);
 	}
 
 }

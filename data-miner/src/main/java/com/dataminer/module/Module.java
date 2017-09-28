@@ -12,6 +12,7 @@ import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildExcep
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.schema.Schema;
+import com.dataminer.schema.Schema.BindingPort;
 
 public abstract class Module {
 
@@ -101,11 +102,11 @@ public abstract class Module {
 		if (finished) {
 			return;
 		}
+		for (Module m : parents) {
+			m.doTask();
+		}
+		valueBind();
 		if (validate()) {
-			for (Module m : parents) {
-				m.doTask();
-			}
-			valueBind();
 			exec(parsedOptions);
 		}
 	}
@@ -115,8 +116,18 @@ public abstract class Module {
 			OptionsParser parser = new OptionsParser(getSchema().getOptionsDefinition());
 			parsedOptions = parser.parse(args);
 		} catch (OptionsParserBuildException | OptionsParseException e) {
-			e.printStackTrace();
+			// logger...
 			return false;
+		}
+
+		Map<String, BindingPort> inputSchemas = getSchema().getInputSchemas();
+		for (String name : inputSchemas.keySet()) {
+			BindingPort bp = inputSchemas.get(name);
+			Object inputValue = getInputValue(bp.name);
+			if (!(bp.type.isInstance(inputValue))) {
+				// logger...
+				return false;
+			}
 		}
 		return true;
 	}
