@@ -24,19 +24,23 @@ public class AgeFilter extends Module {
 		schema.addOutputSchema(new BindingPort("filteredStudent", "JavaRDD", "Student"));
 	}
 
+	public AgeFilter(String[] args, PipelineContext context) {
+		super(args, context);
+	}
+	
+	@Override
 	public Schema getSchema() {
 		return schema;
 	}
 
-	public AgeFilter(String[] args, PipelineContext context) {
-		super(args, context);
-	}
-
+	@Override
 	public boolean validate() {
-		return true;
+		return super.validate();
 	}
 
+	@Override
 	public void exec(ParsedOptions parsedOptions) {
+		@SuppressWarnings("unchecked")
 		JavaRDD<Student> output = ((JavaRDD<Student>) getInputValue("allStudent")).filter(s -> s.getAge() > 17);
 		addOutputValue("filteredStudent", output);
 	}

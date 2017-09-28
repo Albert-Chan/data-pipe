@@ -89,7 +89,7 @@ public abstract class Module {
 		binding.put(localName, new ModuleBindingPort(remoteModule, remoteName));
 	}
 
-	public void actualBind() {
+	public void valueBind() {
 		// add binding
 		for (Entry<String, ModuleBindingPort> e : binding.entrySet()) {
 			ModuleBindingPort mbp = e.getValue();
@@ -105,7 +105,7 @@ public abstract class Module {
 			for (Module m : parents) {
 				m.doTask();
 			}
-			actualBind();
+			valueBind();
 			exec(parsedOptions);
 		}
 	}
@@ -114,17 +114,10 @@ public abstract class Module {
 		try {
 			OptionsParser parser = new OptionsParser(getSchema().getOptionsDefinition());
 			parsedOptions = parser.parse(args);
-		} catch (OptionsParserBuildException e) {
-			e.printStackTrace();
-			return false;
-		} catch (OptionsParseException e) {
-			e.printStackTrace();
-			return false;
-		} catch (Exception e) {
+		} catch (OptionsParserBuildException | OptionsParseException e) {
 			e.printStackTrace();
 			return false;
 		}
-
 		return true;
 	}
 

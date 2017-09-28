@@ -17,6 +17,10 @@ public class StudentGenerator extends Module {
 	static {
 		prepareSchema();
 	}
+	
+	public StudentGenerator(String[] args, PipelineContext context) {
+		super(args, context);
+	}
 
 	public static void prepareSchema() {
 		List<String> optionDef = Arrays.asList("g,	group,	hasArg, required, , toString,	The application group");
@@ -25,19 +29,19 @@ public class StudentGenerator extends Module {
 		schema.addOutputSchema(new BindingPort("allStudent", "JavaRDD", "Student"));
 	}
 
+	@Override
 	public Schema getSchema() {
 		return schema;
 	}
 
-	public StudentGenerator(String[] args, PipelineContext context) {
-		super(args, context);
-	}
-
+	@Override
 	public boolean validate() {
-		return true;
+		return super.validate();
 	}
 
+	@Override
 	public void exec(ParsedOptions parsedOptions) {
+		@SuppressWarnings("unchecked")
 		JavaRDD<Student> output = ((JavaRDD<String>) getInputValue("hdfsInput")).map(line -> {
 			String[] attrs = line.split(",");
 			return new Student(attrs[0], Integer.parseInt(attrs[1]));

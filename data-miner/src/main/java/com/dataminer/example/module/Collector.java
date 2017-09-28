@@ -22,20 +22,24 @@ public class Collector extends SinkModule {
 		schema.addOptionsDefinition(optionDef);
 		schema.addInputSchema(new BindingPort("filteredStudent", "JavaRDD", "Student"));
 	}
-
-	public Schema getSchema() {
-		return schema;
-	}
-
+	
 	public Collector(String[] args, PipelineContext context) {
 		super(args, context);
 	}
 
+	@Override
+	public Schema getSchema() {
+		return schema;
+	}
+
+	@Override
 	public boolean validate() {
 		return true;
 	}
 
+	@Override
 	public void exec(ParsedOptions parsedOptions) {
+		@SuppressWarnings("unchecked")
 		List<Student> filtered = ((JavaRDD<Student>) getInputValue("filteredStudent")).collect();
 		System.out.println(filtered.toString());
 	}

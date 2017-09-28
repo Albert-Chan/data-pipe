@@ -18,6 +18,15 @@ public class HDFSReader extends Module {
 		prepareSchema();
 	}
 
+	public HDFSReader(String[] args, PipelineContext context) {
+		super(args, context);
+	}
+	
+	@Override
+	public Schema getSchema() {
+		return schema;
+	}
+
 	public static void prepareSchema() {
 		List<String> optionDef = Arrays.asList("g,	group,	hasArg, required, , toString,	The application group",
 				"i, input,	hasArg, required, , toString,	The HDFS input path");
@@ -26,14 +35,7 @@ public class HDFSReader extends Module {
 		schema.addOutputSchema(new BindingPort("hdfsOutput", "JavaRDD", "String"));
 	}
 
-	public Schema getSchema() {
-		return schema;
-	}
-
-	public HDFSReader(String[] args, PipelineContext context) {
-		super(args, context);
-	}
-
+	@Override
 	public boolean validate() {
 		return super.validate();
 	}
