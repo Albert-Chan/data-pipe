@@ -20,7 +20,7 @@ public class TableMapping {
 	public static String[] getFieldsMapping(String embeddedTableName) {
 		ConfigManager psgConf = ConfigManager.getConfig();
 		String prefix = TABLE_MAPPING_PREFIX + embeddedTableName + ".";
-		HashMap<String, String> filteredProps = psgConf.getPropertyWithPrefix(prefix);
+		HashMap<String, String> filteredProps = psgConf.getPropertiesWithPrefix(prefix);
 
 		String[] fieldMapper = filteredProps.keySet().stream()
 				.map(key -> key.replace(prefix, "") + " as " + filteredProps.get(key)).collect(Collectors.toList())

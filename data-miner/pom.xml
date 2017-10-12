@@ -4,11 +4,11 @@
 	<groupId>com.dataminer</groupId>
 	<artifactId>data-miner</artifactId>
 	<version>0.0.1</version>
-	
+
 	<properties>
 		<spark.version>1.6.2</spark.version>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>com.hadoop.gplcompression</groupId>
@@ -69,7 +69,7 @@
 		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>2.5.1</version>
+			<version>2.7.2</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>

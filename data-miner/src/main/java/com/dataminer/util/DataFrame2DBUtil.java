@@ -2,7 +2,6 @@ package com.dataminer.util;
 
 import static org.apache.spark.sql.functions.round;
 
-import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,7 +12,8 @@ import org.apache.spark.sql.DataFrame;
 import com.dataminer.configuration.PipelineConfig;
 import com.dataminer.constants.AnalyticTimeType;
 import com.dataminer.constants.Constants;
-import com.dataminer.db.HikariDBInstance;
+import com.dataminer.db.ConnectionPool;
+import com.dataminer.db.ConnectionPools;
 
 import scala.Tuple3;
 
@@ -113,28 +113,21 @@ public class DataFrame2DBUtil {
 		}
 	}
 
-	private static long getRecordsCount(HikariDBInstance hikariDBInstance, String countSQL) throws Exception {
-		CheckedFunction<ResultSet, Long> rsToInteger = (ResultSet rs) -> {
-			long count = 0L;
-			while (rs.next()) {
-				count = rs.getLong(1);
-			}
-			return count;
-		};
-
-		long count = hikariDBInstance.getSimpleQueryResult(countSQL, rsToInteger);
-		return count;
-	}
-
 	private static void checkAndDelete(String tableFilter) throws Exception {
-		HikariDBInstance hikariDBInstance = new HikariDBInstance(PipelineConfig.getDBProp("result"));
+		ConnectionPool cp = ConnectionPools.get("result");
 		String countSQL = "select count(*)" + tableFilter;
-		long count = getRecordsCount(hikariDBInstance, countSQL);
+		long count = cp.prepareSQL(countSQL).executeQueryAndThen(rs -> {
+			long recordCount = 0L;
+			while (rs.next()) {
+				recordCount = rs.getLong(1);
+			}
+			return recordCount;
+		});
+		
 		if (count > 0L) {
 			String deleteSQL = "delete" + tableFilter;
-			hikariDBInstance.execute(deleteSQL);
+			cp.prepareSQL(deleteSQL).executeUpdate();
 		}
-		hikariDBInstance.close();
 	}
 
 	private static DataFrame withColumnExpanded(DataFrame dataFrame, String outputTable, DateTimeWrapper date,

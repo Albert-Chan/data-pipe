@@ -91,7 +91,7 @@ public class ConfigManager {
 		}
 	}
 
-	public HashMap<String, String> getPropertyWithPrefix(String prefix) {
+	public HashMap<String, String> getPropertiesWithPrefix(String prefix) {
 		List<Object> matchedKeys = allProps.keySet().stream().filter(p -> p.toString().startsWith(prefix))
 				.collect(Collectors.toList());
 		HashMap<String, String> subMap = new HashMap<>();
