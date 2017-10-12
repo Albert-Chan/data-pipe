@@ -29,7 +29,7 @@ public class SamplingExpansionUtil {
 		// get the sampling expansion
 		String selectSQL = "select * from TBL_SAMPLING_EXPANSION where TABLE_NAME = ? and START_DATE <= ? and (END_DATE > ? or END_DATE is null)";
 
-		List<Tuple3<String, Float, String>> cmc = ConnectionPools.get("base").prepareSQL(selectSQL).withParam(stmt -> {
+		List<Tuple3<String, Float, String>> cmc = ConnectionPools.get("base").sql(selectSQL).withParam(stmt -> {
 			stmt.setString(1, outputTable);
 			stmt.setInt(2, dayAsNumber);
 			stmt.setInt(3, dayAsNumber);

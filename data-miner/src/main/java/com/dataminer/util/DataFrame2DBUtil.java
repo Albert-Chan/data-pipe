@@ -2,6 +2,7 @@ package com.dataminer.util;
 
 import static org.apache.spark.sql.functions.round;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -113,10 +114,10 @@ public class DataFrame2DBUtil {
 		}
 	}
 
-	private static void checkAndDelete(String tableFilter) throws Exception {
+	private static void checkAndDelete(String tableFilter) throws SQLException {
 		ConnectionPool cp = ConnectionPools.get("result");
 		String countSQL = "select count(*)" + tableFilter;
-		long count = cp.prepareSQL(countSQL).executeQueryAndThen(rs -> {
+		long count = cp.sql(countSQL).executeQueryAndThen(rs -> {
 			long recordCount = 0L;
 			while (rs.next()) {
 				recordCount = rs.getLong(1);
@@ -126,7 +127,7 @@ public class DataFrame2DBUtil {
 		
 		if (count > 0L) {
 			String deleteSQL = "delete" + tableFilter;
-			cp.prepareSQL(deleteSQL).executeUpdate();
+			cp.sql(deleteSQL).executeUpdate();
 		}
 	}
 

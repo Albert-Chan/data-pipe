@@ -100,5 +100,15 @@ public class ConfigManager {
 		}
 		return subMap;
 	}
-
+	
+	public Properties getPropertiesHavingPrefix(String prefix) {
+		List<Object> matchedKeys = allProps.keySet().stream().filter(p -> p.toString().startsWith(prefix))
+				.collect(Collectors.toList());
+		Properties subMap = new Properties();
+		for (Object key : matchedKeys) {
+			String strKey = (String)key;
+			subMap.put(strKey.replaceFirst(prefix, ""), getProperty((String) key, EMPTY_STRING));
+		}
+		return subMap;
+	}
 }

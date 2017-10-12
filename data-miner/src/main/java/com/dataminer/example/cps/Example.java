@@ -79,14 +79,6 @@ public class Example {
 		TRIGGER.send(mc.event("action", "appEnd "));
 		
 	}
-	
-	
-	
-	
-
-	
-	
-	
 
 }
 
