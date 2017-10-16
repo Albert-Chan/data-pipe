@@ -5,8 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.dataminer.util.SQLFunction;
-
 public class SQLExecutor {
 
 	private PreparedStatement ps;

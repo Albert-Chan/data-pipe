@@ -13,13 +13,6 @@ public interface Constants {
 	public static final String ORACLE_DATA_FORMAT = "yyyy/mm/dd hh24:mi:ss";
 
 	public static final Charset CHARSET_UTF8 = Charset.forName("UTF-8");
-
-	public static final String DB_DRIVER = "db.driver";
-	public static final String DB_CONNECTION_URL = "db.connection.url";
-	public static final String DB_USER = "db.username";
-	public static final String DB_PASSWORD = "db.password";
-
-	public static final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
 	
 	public static final String KAFKA_BROKERS = "kafka.brokers";
 	public static final String KAFKA_MONITOR_TOPIC = "kafka.monitor.topic";

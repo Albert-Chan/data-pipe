@@ -1,4 +1,4 @@
-package com.dataminer.util;
+package com.dataminer.db;
 
 import java.sql.SQLException;
 

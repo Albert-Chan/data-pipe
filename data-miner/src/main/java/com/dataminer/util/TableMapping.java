@@ -1,6 +1,6 @@
 package com.dataminer.util;
 
-import java.util.HashMap;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import com.dataminer.configuration.ConfigManager;
@@ -20,12 +20,10 @@ public class TableMapping {
 	public static String[] getFieldsMapping(String embeddedTableName) {
 		ConfigManager psgConf = ConfigManager.getConfig();
 		String prefix = TABLE_MAPPING_PREFIX + embeddedTableName + ".";
-		HashMap<String, String> filteredProps = psgConf.getPropertiesWithPrefix(prefix);
-
-		String[] fieldMapper = filteredProps.keySet().stream()
-				.map(key -> key.replace(prefix, "") + " as " + filteredProps.get(key)).collect(Collectors.toList())
+		Properties filteredProps = psgConf.getPropertiesWithPrefix(prefix);
+		String[] fieldMapper = filteredProps.entrySet().stream()
+				.map(entry -> entry.getKey() + " as " + entry.getValue()).collect(Collectors.toList())
 				.toArray(new String[0]);
-
 		return fieldMapper;
 	}
 	

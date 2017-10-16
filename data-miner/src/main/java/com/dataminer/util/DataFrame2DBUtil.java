@@ -5,12 +5,13 @@ import static org.apache.spark.sql.functions.round;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.DataFrame;
 
-import com.dataminer.configuration.PipelineConfig;
+import com.dataminer.configuration.ConfigManager;
 import com.dataminer.constants.AnalyticTimeType;
 import com.dataminer.constants.Constants;
 import com.dataminer.db.ConnectionPool;
@@ -80,7 +81,7 @@ public class DataFrame2DBUtil {
 		DataFrame expandedDF = withColumnExpanded(df.selectExpr(fieldMapper), tableName, date, type);
 
 		// save to database
-		DataFrameUtil.writeToTable(expandedDF, tableName, PipelineConfig.getDBProp("result"));
+		DataFrameUtil.writeToTable(expandedDF, tableName, getSparkSQLProperties("result"));
 	}
 
 	/**
@@ -169,7 +170,7 @@ public class DataFrame2DBUtil {
 		DataFrame expandedDF = withColumnExpanded(df.selectExpr(fieldMapper), tableName, date, type);
 
 		// save to database
-		DataFrameUtil.writeToTable(expandedDF, tableName, PipelineConfig.getDBProp("result"));
+		DataFrameUtil.writeToTable(expandedDF, tableName, getSparkSQLProperties("result"));
 	}
 	
 	private static void deleteDataInDBWithSamePeriod(String outputTable, DateTimeWrapper analyticPeriod,
@@ -198,6 +199,16 @@ public class DataFrame2DBUtil {
 		default:
 			throw new RuntimeException("Unknown analytic time type.");
 		}
+	}
+	
+	private static Properties getSparkSQLProperties(String dbPoolName) {
+		ConfigManager confManager = ConfigManager.getConfig();
+		Properties props = new Properties();
+		props.setProperty("driver", confManager.getProperty("db." + dbPoolName + "driver"));
+		props.setProperty("url", confManager.getProperty("cp." + dbPoolName + "jdbcUrl"));
+		props.setProperty("user", confManager.getProperty("cp" + dbPoolName + "username"));
+		props.setProperty("password", confManager.getProperty("cp." + dbPoolName + "password"));
+		return props;
 	}
 
 }

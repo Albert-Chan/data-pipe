@@ -16,7 +16,7 @@ public class ConnectionPools {
 
 	public static synchronized ConnectionPool get(String poolName) {
 		if (pools.get(poolName) == null) {
-			Properties poolConfig = ConfigManager.getConfig().getPropertiesHavingPrefix("cp." + poolName + ".");
+			Properties poolConfig = ConfigManager.getConfig().getPropertiesWithPrefix("cp." + poolName + ".");
 
 			pools.put(poolName, new ConnectionPool(new HikariDataSource(new HikariConfig(poolConfig))));
 			LOG.info("Pool " + poolName + " initialized.");

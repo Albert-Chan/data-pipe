@@ -1,7 +1,5 @@
 package com.dataminer.util;
 
-import static com.dataminer.constants.Constants.DB_CONNECTION_URL;
-
 import java.sql.Types;
 import java.util.Map;
 import java.util.Properties;
@@ -10,7 +8,6 @@ import org.apache.spark.annotation.Experimental;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SaveMode;
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils;
 import org.apache.spark.sql.jdbc.JdbcDialect;
 import org.apache.spark.sql.jdbc.JdbcDialects;
 import org.apache.spark.sql.jdbc.JdbcType;
@@ -35,7 +32,7 @@ public class DataFrameUtil {
 	public static final IntegerType INTEGER = IntegerType$.MODULE$;
 
 	static {
-		JdbcDialects.registerDialect(new MHOracleDialect());
+		JdbcDialects.registerDialect(new OracleDialect());
 	}
 
 	/**
@@ -86,18 +83,14 @@ public class DataFrameUtil {
 	 *            database connection relevant props
 	 */
 	public static void writeToTable(DataFrame dataFrame, String tableName, Properties dbProps) {
-		dataFrame.write().mode(SaveMode.Append).jdbc(dbProps.getProperty(DB_CONNECTION_URL), tableName, dbProps);
-	}
-
-	public static String schemaString(DataFrame dataFrame, Properties dbProps) {
-		return JdbcUtils.schemaString(dataFrame, dbProps.getProperty(DB_CONNECTION_URL));
+		dataFrame.write().mode(SaveMode.Append).jdbc(dbProps.getProperty("url"), tableName, dbProps);
 	}
 
 }
 
 // spark 1.6.2 has some oracle type issue, so temporarily "borrow" some piece
 // from spark 2.0
-class MHOracleDialect extends JdbcDialect {
+class OracleDialect extends JdbcDialect {
 	private static final long serialVersionUID = -3939581388693222000L;
 
 	@Override
