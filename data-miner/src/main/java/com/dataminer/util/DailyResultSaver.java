@@ -1,6 +1,11 @@
 package com.dataminer.util;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+
+import javax.swing.text.DateFormatter;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -51,8 +56,8 @@ public class DailyResultSaver {
 			DataFrame df = sqlCtx.createDataFrame(rdd, schema.get());
 
 			// export to Database
-			DateTimeWrapper mhTime = new DateTimeWrapper(analyticDay, "yyyy/MM/dd");
-			DataFrame2DBUtil.dataFrame2DB(df, tableName.get(), mhTime, AnalyticTimeType.BY_DAY);
+			LocalDate date = LocalDate.parse(analyticDay, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+			DataFrame2DBUtil.dataFrame2DB(df, tableName.get(), date, AnalyticTimeType.BY_DAY);
 		}
 	}
 	
@@ -65,8 +70,8 @@ public class DailyResultSaver {
 
 		if (tableName.isPresent()) {
 			// export to Database
-			DateTimeWrapper mhTime = new DateTimeWrapper(analyticDay, "yyyy/MM/dd");
-			DataFrame2DBUtil.dataFrame2DB(df, tableName.get(), mhTime, AnalyticTimeType.BY_DAY);
+			LocalDate date = LocalDate.parse(analyticDay, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+			DataFrame2DBUtil.dataFrame2DB(df, tableName.get(), date, AnalyticTimeType.BY_DAY);
 		}
 	}
 	

@@ -1,6 +1,8 @@
 package com.dataminer.util;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import com.clearspring.analytics.util.Lists;
@@ -11,12 +13,11 @@ import scala.Tuple3;
 
 public class SamplingExpansionUtil {
 
-	public static List<Tuple3<String, Float, String>> getSamplingExpansion(String outputTable, DateTimeWrapper date,
+	public static List<Tuple3<String, Float, String>> getSamplingExpansion(String outputTable, LocalDate date,
 			AnalyticTimeType type) throws SQLException {
 		switch (type) {
 		case BY_MONTH:
-			int day = date.getMaxDayOfMonth();
-			date.setDay(day);
+			date = date.with(TemporalAdjusters.lastDayOfMonth());
 			break;
 		case BY_DAY:
 			break;
@@ -24,7 +25,7 @@ public class SamplingExpansionUtil {
 			return Lists.newArrayList();
 		}
 
-		int dayAsNumber = date.getDay();
+		int dayAsNumber = date.getDayOfMonth();
 
 		// get the sampling expansion
 		String selectSQL = "select * from TBL_SAMPLING_EXPANSION where TABLE_NAME = ? and START_DATE <= ? and (END_DATE > ? or END_DATE is null)";

@@ -3,6 +3,8 @@ package com.dataminer.util;
 import static org.apache.spark.sql.functions.round;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -39,7 +41,7 @@ public class DataFrame2DBUtil {
 	 * @param type
 	 * @throws Exception
 	 */
-	public static void dataFrame2DB(DataFrame df, String embeddedTableName, DateTimeWrapper date, AnalyticTimeType type)
+	public static void dataFrame2DB(DataFrame df, String embeddedTableName, LocalDate date, AnalyticTimeType type)
 			throws Exception {
 		dataFrame2DB(df, embeddedTableName, date, type, true);
 	}
@@ -60,12 +62,12 @@ public class DataFrame2DBUtil {
 	 * @param type
 	 * @throws Exception
 	 */
-	public static void dataFrame2DBWithoutDeletion(DataFrame df, String embeddedTableName, DateTimeWrapper date,
+	public static void dataFrame2DBWithoutDeletion(DataFrame df, String embeddedTableName, LocalDate date,
 			AnalyticTimeType type) throws Exception {
 		dataFrame2DB(df, embeddedTableName, date, type, false);
 	}
 
-	private static void dataFrame2DB(DataFrame df, String embeddedTableName, DateTimeWrapper date, AnalyticTimeType type,
+	private static void dataFrame2DB(DataFrame df, String embeddedTableName, LocalDate date, AnalyticTimeType type,
 			boolean needDeletion) throws Exception {
 		// mapping from embedded table/field name to the names in configuration.
 		LOG.debug(" tableNameBeforeMapping " + embeddedTableName);
@@ -92,19 +94,18 @@ public class DataFrame2DBUtil {
 	 * @param type
 	 * @throws Exception
 	 */
-	private static void deleteDataInDBWithSamePeriod(String outputTable, DateTimeWrapper analyticPeriod,
+	private static void deleteDataInDBWithSamePeriod(String outputTable, LocalDate analyticPeriod,
 			String timeIndexName, AnalyticTimeType type) throws Exception {
 		String tableFilter;
 		switch (type) {
 		case BY_MONTH:
 			tableFilter = String.format(" from %s where %s = %d", outputTable, timeIndexName,
-					analyticPeriod.getYearMonth());
+					analyticPeriod.getYear() * 100 + analyticPeriod.getMonth().getValue());
 			checkAndDelete(tableFilter);
 			break;
 		case BY_DAY:
-			DateTimeWrapper date = new DateTimeWrapper(analyticPeriod.roundToDay());
-			String fromDate = date.formatTime(Constants.YMDHMS_FORMAT);
-			String toDate = date.addDays(1).formatTime(Constants.YMDHMS_FORMAT);
+			String fromDate = analyticPeriod.format(DateTimeFormatter.ofPattern(Constants.YMDHMS_FORMAT));
+			String toDate = analyticPeriod.plusDays(1).format(DateTimeFormatter.ofPattern(Constants.YMDHMS_FORMAT));
 			tableFilter = String.format(" from %s where %s >= to_date('%s','%s') and %s < to_date('%s','%s')",
 					outputTable, timeIndexName, fromDate, Constants.ORACLE_DATA_FORMAT, timeIndexName, toDate,
 					Constants.ORACLE_DATA_FORMAT);
@@ -132,7 +133,7 @@ public class DataFrame2DBUtil {
 		}
 	}
 
-	private static DataFrame withColumnExpanded(DataFrame dataFrame, String outputTable, DateTimeWrapper date,
+	private static DataFrame withColumnExpanded(DataFrame dataFrame, String outputTable, LocalDate date,
 			AnalyticTimeType type) throws Exception {
 		// get the sampling expansion <columnName, multiplier, condition>
 		List<Tuple3<String, Float, String>> columnExpansion = SamplingExpansionUtil.getSamplingExpansion(outputTable,
@@ -152,53 +153,6 @@ public class DataFrame2DBUtil {
 			dataFrame = dataFrame.withColumn(columnName, round(dataFrame.col(columnName).multiply(multiplier)));
 		}
 		return dataFrame;
-	}
-	
-	public static void dataFrame2DB(DataFrame df, String embeddedTableName, DateTimeWrapper date, AnalyticTimeType type,
-			boolean needDeletion, String params) throws Exception {
-		// mapping from embedded table/field name to the names in configuration.
-		LOG.debug(" tableNameBeforeMapping " + embeddedTableName);
-		String tableName = TableMapping.mapTableName(embeddedTableName);
-		String[] fieldMapper = TableMapping.getFieldsMapping(embeddedTableName);
-		LOG.debug(" tableNameBeforeMapping ==> tableName " + embeddedTableName + " ==> " + tableName + " fieldMapper "
-				+ Arrays.stream(fieldMapper).collect(Collectors.toList()));
-		String timeIndexerName = TableMapping.getTimeIndexer(embeddedTableName);
-
-		if (needDeletion) {
-			deleteDataInDBWithSamePeriod(tableName, date, timeIndexerName, type, params);
-		}
-		DataFrame expandedDF = withColumnExpanded(df.selectExpr(fieldMapper), tableName, date, type);
-
-		// save to database
-		DataFrameUtil.writeToTable(expandedDF, tableName, getSparkSQLProperties("result"));
-	}
-	
-	private static void deleteDataInDBWithSamePeriod(String outputTable, DateTimeWrapper analyticPeriod,
-			String timeIndexName, AnalyticTimeType type, String params) throws Exception {
-		String tableFilter;
-		switch (type) {
-		case BY_MONTH:
-			tableFilter = String.format(" from %s where %s = %d", outputTable, timeIndexName,
-					analyticPeriod.getYearMonth());
-			checkAndDelete(tableFilter);
-			break;
-		case BY_DAY:
-			DateTimeWrapper date = new DateTimeWrapper(analyticPeriod.roundToDay());
-			String fromDate = date.formatTime(Constants.YMDHMS_FORMAT);
-			String toDate = date.addDays(1).formatTime(Constants.YMDHMS_FORMAT);
-			tableFilter = String.format(" from %s where %s >= to_date('%s','%s') and %s < to_date('%s','%s')",
-					outputTable, timeIndexName, fromDate, Constants.ORACLE_DATA_FORMAT, timeIndexName, toDate,
-					Constants.ORACLE_DATA_FORMAT);
-			checkAndDelete(tableFilter);
-			break;
-		case BY_PARAM:
-			tableFilter = String.format(" from %s where %s = %s", outputTable, timeIndexName,
-					params);
-			checkAndDelete(tableFilter);
-			break;
-		default:
-			throw new RuntimeException("Unknown analytic time type.");
-		}
 	}
 	
 	private static Properties getSparkSQLProperties(String dbPoolName) {

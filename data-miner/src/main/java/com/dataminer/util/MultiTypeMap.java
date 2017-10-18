@@ -3,8 +3,7 @@ package com.dataminer.util;
 import java.util.HashMap;
 import java.util.Map;
 
-
-public class MultiTypeMap {
+public class MultiTypeMap<U> {
 
 	public static class Key<T> {
 		final String identifier;
@@ -16,23 +15,13 @@ public class MultiTypeMap {
 		}
 	}
 
-//	private final Map<String, Key<?>> keys = new HashMap<>();
-	private final Map<Key<?>, Object> values = new HashMap<>();
+	private final Map<Key<?>, U> values = new HashMap<>();
 
-	public <T> void put(Key<T> key, T value) {
+	public <T> void put(Key<T> key, U value) {
 		values.put(key, value);
 	}
 
-//	public <T> T get(String keyName) {
-//		Key<T> key = keys.get(keyName);
-//		
-//		keys.get(keyName).type.cast(values.get(keys.get(keyName)));
-//	}
-	
-	
-	public <T> T get(Key<T> key) {
-		return key.type.cast(values.get(key));
+	public <T> U get(Key<T> key) {
+		return values.get(key);
 	}
 }
-
-
