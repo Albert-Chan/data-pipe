@@ -1,24 +1,24 @@
 package com.dataminer.datetime;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class TimeWindowTest {
 	@Test
 	public void test() {
+		TimeWindow tw = TimeWindow.interval(Duration.ofMinutes(15));
+		LocalDateTime aTime = LocalDateTime.of(2017, 5, 15, 11, 1, 12);
 
-		long start, end;
+		LocalDateTime left = tw.toLeftEdge(aTime);
+		LocalDateTime right = tw.toRightEdge(aTime);
 
-		start = System.currentTimeMillis();
-		for (int i = 0; i < 1000000L; i++) {
-			TimeWindow.of("2017/05/15 11:01:12", "yyyy/MM/dd HH:mm:ss");
-		}
-		end = System.currentTimeMillis();
-		System.out.println(end - start);
+		assertEquals(LocalDateTime.of(2017, 5, 15, 11, 0, 0), left);
+		assertEquals(LocalDateTime.of(2017, 5, 15, 11, 15, 0), right);
 		
-		
-		
-		
-//		assertEquals(LocalDateTime.of(2017, 5, 15, 11, 0, 0), window.toLeftEdge(15));
-//		assertEquals(LocalDateTime.of(2017, 5, 15, 11, 15, 0), window.toRightEdge(15));
+		assertEquals(1660940, tw.getTimeWindowIndex(aTime));
+		assertEquals(44, tw.getTimeWindowIndexInDayRange(aTime));
 	}
 }

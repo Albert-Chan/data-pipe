@@ -1,83 +1,112 @@
 package com.dataminer.datetime;
 
+import static java.time.temporal.ChronoField.SECOND_OF_DAY;
+
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAdjuster;
 
 public class TimeWindow implements Serializable {
 	private static final long serialVersionUID = 8339895644550649179L;
 
-	private LocalDateTime dateTime;
+	private LocalDateTime startTime;
+	private Duration interval;
 
-	private TimeWindow() {
+	private TimeWindow(Duration interval) {
+		this.interval = interval;
 	}
 
-	public static TimeWindow of(String time, String pattern) {
-		TimeWindow tw = new TimeWindow();
-		tw.dateTime = LocalDateTime.parse(time, FastDateTimeFormatter.ofPattern(pattern));
-		return tw;
-	}
-
-	public static TimeWindow ofLocalDateTime(LocalDateTime dateTime) {
-		TimeWindow tw = new TimeWindow();
-		tw.dateTime = dateTime;
-		return tw;
-	}
-
-	public static TimeWindow ofTimeStamp(long timestamp) {
-		TimeWindow tw = new TimeWindow();
-		tw.dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+	public static TimeWindow of(LocalDateTime startTime, Duration interval) {
+		TimeWindow tw = new TimeWindow(interval);
+		tw.startTime = startTime;
 		return tw;
 	}
 
 	public static TimeWindow from(TimeWindow t) {
-		TimeWindow tw = new TimeWindow();
-		tw.dateTime = t.dateTime;
+		return of(t.startTime, t.interval);
+	}
+
+	public static TimeWindow interval(Duration interval) {
+		TimeWindow tw = new TimeWindow(interval);
+		tw.startTime = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
 		return tw;
 	}
 
+	public TimeWindow withStart(String time, String pattern) {
+		LocalDateTime startTime = LocalDateTime.parse(time, FastDateTimeFormatter.ofPattern(pattern));
+		return of(startTime, interval);
+	}
+
+	public TimeWindow withStart(LocalDateTime startTime) {
+		return of(startTime, interval);
+	}
+
+	public TimeWindow withStart(long timestamp) {
+		LocalDateTime startTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+		return of(startTime, interval);
+	}
+
 	/**
-	 * Gets the time window index with the giving interval, indexed from 0.
+	 * Gets the time window index of the local date time from the the beginning,
+	 * indexed from 0.
 	 * 
-	 * @param intervalMinutes
-	 *            the interval minutes, currently a time window is started from the
-	 *            beginning of an hour, and an hour should be split into integral
-	 *            time windows.
+	 * @param dateTime
+	 *            the date time need to get time window index.
 	 * @return the time window index
 	 */
-	public int getTimeWindowIndex(int intervalMinutes) {
-		int hour = dateTime.getHour();
-		int minute = dateTime.getMinute();
-		int timeWindowIndex = (hour * 60 + minute) / intervalMinutes;
-		return timeWindowIndex;
+	public long getTimeWindowIndex(LocalDateTime dateTime) {
+		long intervalSeconds = interval.getSeconds();
+		long gap = Duration.between(startTime, dateTime).getSeconds();
+		return gap / intervalSeconds;
 	}
 
 	/**
-	 * Rounds this local date time to the left edge of the time window.
+	 * Gets the time window index within a day, indexed from 0.
 	 * 
-	 * @param intervalMinutes
-	 *            the interval minutes, currently a time window is started from the
-	 *            beginning of an hour, and an hour should be split into integral
-	 *            time windows.
+	 * @param idateTime
+	 *            the date time need to get time window index.
+	 * @return the time window index
+	 */
+	public long getTimeWindowIndexInDayRange(LocalDateTime dateTime) {
+		return getTimeWindowIndex(dateTime, RangeAdjusters.firstSecondOfDay());
+	}
+
+	private long getTimeWindowIndex(LocalDateTime dateTime, TemporalAdjuster adjuster) {
+		TimeWindow newTimeWindow = this.withStart(dateTime.with(adjuster));
+		return newTimeWindow.getTimeWindowIndex(dateTime);
+	}
+
+	/**
+	 * Rounds a local date time to the left edge of the time window.
+	 * 
+	 * @param dateTime
+	 *            the date time need to be aligned.
 	 * @return the local date time representing the time window's left edge.
 	 */
-	public LocalDateTime toLeftEdge(int intervalMinutes) {
-		return dateTime.withMinute(dateTime.getMinute() / intervalMinutes * intervalMinutes).withSecond(0);
+	public LocalDateTime toLeftEdge(LocalDateTime dateTime) {
+		long index = getTimeWindowIndex(dateTime);
+		return startTime.plusSeconds(index * interval.getSeconds());
 	}
 
 	/**
-	 * Rounds this local date time to the right edge of the time window.
+	 * Rounds a local date time to the right edge of the time window.
 	 * 
-	 * @param intervalMinutes
-	 *            the interval minutes, currently a time window is started from the
-	 *            beginning of an hour, and an hour should be split into integral
-	 *            time windows.
+	 * @param dateTime
+	 *            the date time need to be aligned.
 	 * @return the local date time representing the time window's right edge.
 	 */
-	public LocalDateTime toRightEdge(int intervalMinutes) {
-		return dateTime.withMinute(dateTime.getMinute() / intervalMinutes * intervalMinutes + intervalMinutes)
-				.withSecond(0);
+	public LocalDateTime toRightEdge(LocalDateTime dateTime) {
+		long index = getTimeWindowIndex(dateTime);
+		return startTime.plusSeconds((index + 1) * interval.getSeconds());
+	}
+
+	public static class RangeAdjusters {
+		public static TemporalAdjuster firstSecondOfDay() {
+			return temporal -> temporal.with(SECOND_OF_DAY, 0);
+		}
 	}
 
 }
