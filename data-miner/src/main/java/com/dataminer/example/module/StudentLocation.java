@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.framework.pipeline.PipelineContext;
@@ -48,6 +49,13 @@ public class StudentLocation extends Module {
 		});
 
 		addOutputValue(STUDENT_COUNTRY, output);
+	}
+	
+	public static JavaRDD<StudentCountry> source(JavaSparkContext context) {
+		return context.parallelize(Arrays.asList("S1,USA", "S2,CHN", "S3,GER")).map(line -> {
+			String[] attrs = line.split(",");
+			return new StudentCountry(attrs[0], attrs[1]);
+		});
 	}
 
 }

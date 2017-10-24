@@ -14,7 +14,7 @@ import com.dataminer.schema.Schema.BindingPort;
 import scala.Tuple2;
 
 public class RDDJoin extends Module {
-	
+
 	public static final String FILTERED_STUDENT = "filteredStudent";
 	public static final String STUDENT_COUNTRY = "studentCountry";
 
@@ -50,18 +50,19 @@ public class RDDJoin extends Module {
 		@SuppressWarnings("unchecked")
 		JavaRDD<StudentCountry> country = ((JavaRDD<StudentCountry>) getInputValue(STUDENT_COUNTRY));
 
-		// filtered.mapToPair(student-> new Tuple2<>(student.getName(), student));
-		// country.mapToPair(studentCountry-> new Tuple2<>(studentCountry.getName(),
-		// studentCountry));
+		JavaRDD<StudentFullProperties> output = studentPropertyMerge(filtered, country);
 
-		JavaRDD<StudentFullProperties> output = filtered.mapToPair(student -> new Tuple2<>(student.getName(), student))
+		addOutputValue(FILTERED_STUDENT_WITH_COUNTRY, output);
+	}
+
+	public static JavaRDD<StudentFullProperties> studentPropertyMerge(JavaRDD<Student> filtered,
+			JavaRDD<StudentCountry> country) {
+		return filtered.mapToPair(student -> new Tuple2<>(student.getName(), student))
 				.join(country.mapToPair(studentCountry -> {
 					return new Tuple2<>(studentCountry.getName(), studentCountry);
 				})).map(t -> {
 					return new StudentFullProperties(t._1, t._2._1.getAge(), t._2._2.getCountry());
 				});
-
-		addOutputValue(FILTERED_STUDENT_WITH_COUNTRY, output);
 	}
 
 }

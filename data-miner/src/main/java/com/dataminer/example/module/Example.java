@@ -26,7 +26,6 @@ public class Example {
 			join.bind(RDDJoin.FILTERED_STUDENT, ageFilter, AgeFilter.FILTERED_STUDENT);
 			join.bind(RDDJoin.STUDENT_COUNTRY, studentLoc, StudentLocation.STUDENT_COUNTRY);
 			
-			
 			collector.bind(Collector.OUTPUT_STUDENT, join, RDDJoin.FILTERED_STUDENT_WITH_COUNTRY);
 			
 		} catch (ModuleCreationException e) {

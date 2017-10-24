@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.framework.pipeline.PipelineContext;
@@ -22,7 +23,7 @@ public class HDFSReader extends Module {
 	public HDFSReader(String[] args, PipelineContext context) {
 		super(args, context);
 	}
-	
+
 	@Override
 	public Schema getSchema() {
 		return schema;
@@ -41,9 +42,13 @@ public class HDFSReader extends Module {
 		String input = parsedOptions.get("input");
 		// JavaRDD<String> output = context.textFile(input);
 
-		JavaRDD<String> output = context.getJavaSparkContext().parallelize(Arrays.asList("S1,17", "S2,18", "S3,23"));
+		JavaRDD<String> output = source(context.getJavaSparkContext());
 
 		addOutputValue(HDFS_OUTPUT, output);
+	}
+
+	public static JavaRDD<String> source(JavaSparkContext context) {
+		return context.parallelize(Arrays.asList("S1,17", "S2,18", "S3,23"));
 	}
 
 }

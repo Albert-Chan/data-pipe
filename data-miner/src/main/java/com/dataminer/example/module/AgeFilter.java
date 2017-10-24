@@ -40,8 +40,13 @@ public class AgeFilter extends Module {
 	@Override
 	public void exec(ParsedOptions parsedOptions) {
 		@SuppressWarnings("unchecked")
-		JavaRDD<Student> output = ((JavaRDD<Student>) getInputValue(ALL_STUDENT)).filter(s -> s.getAge() > 17);
+		JavaRDD<Student> allStudents = (JavaRDD<Student>) getInputValue(ALL_STUDENT);
+		JavaRDD<Student> output = getStudentLargerThan17(allStudents);
 		addOutputValue(FILTERED_STUDENT, output);
+	}
+	
+	public static JavaRDD<Student> getStudentLargerThan17(JavaRDD<Student> allStudents) {
+		return allStudents.filter(s -> s.getAge() > 17);
 	}
 
 }

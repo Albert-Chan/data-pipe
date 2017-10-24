@@ -39,11 +39,15 @@ public class StudentGenerator extends Module {
 	@Override
 	public void exec(ParsedOptions parsedOptions) {
 		@SuppressWarnings("unchecked")
-		JavaRDD<Student> output = ((JavaRDD<String>) getInputValue(HDFS_INPUT)).map(line -> {
+		JavaRDD<Student> output = generateStudent((JavaRDD<String>) getInputValue(HDFS_INPUT));
+		addOutputValue(ALL_STUDENT, output);
+	}
+	
+	public static JavaRDD<Student> generateStudent(JavaRDD<String> hdfsInput) {
+		return hdfsInput.map(line -> {
 			String[] attrs = line.split(",");
 			return new Student(attrs[0], Integer.parseInt(attrs[1]));
 		});
-		addOutputValue(ALL_STUDENT, output);
 	}
 
 }

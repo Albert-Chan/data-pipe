@@ -46,25 +46,10 @@
 			<version>11.2.0.3</version>
 		</dependency>
 		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>2.9.2</version>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-csv</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-collections4</artifactId>
-			<version>4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.zaxxer</groupId>
@@ -75,12 +60,6 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.41</version>
-		</dependency>
-		<dependency>
-			<groupId>com.holdenkarau</groupId>
-			<artifactId>spark-testing-base_2.10</artifactId>
-			<version>${spark.version}_0.6.0</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>

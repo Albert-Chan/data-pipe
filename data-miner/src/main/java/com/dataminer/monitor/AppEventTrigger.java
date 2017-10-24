@@ -28,7 +28,7 @@ public class AppEventTrigger {
 		String brokers = conf.getProperty(Constants.KAFKA_BROKERS);
 		this.topic = conf.getProperty(Constants.KAFKA_MONITOR_TOPIC);
 
-		if (!brokers.isEmpty() && !this.topic.isEmpty()) {
+		if (!isEmptyString(brokers) && !isEmptyString(this.topic)) {
 			Properties props = new Properties();
 			props.put("bootstrap.servers", brokers);
 			props.put("acks", "all");
@@ -49,6 +49,10 @@ public class AppEventTrigger {
 			// If the VM is already shutting down,
 			// We do not need to register shutdownHook.
 		}
+	}
+
+	private boolean isEmptyString(String testString) {
+		return (null == testString) || testString.isEmpty();
 	}
 
 	private class Cleaner extends Thread {

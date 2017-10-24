@@ -37,7 +37,12 @@ public class Collector extends SinkModule {
 	@Override
 	public void exec(ParsedOptions parsedOptions) {
 		@SuppressWarnings("unchecked")
-		List<Student> filtered = ((JavaRDD<Student>) getInputValue(OUTPUT_STUDENT)).collect();
+		JavaRDD<Student> outputStudents = (JavaRDD<Student>) getInputValue(OUTPUT_STUDENT);
+		showResult(outputStudents);
+	}
+	
+	public static void showResult(JavaRDD<Student> outputStudents) {
+		List<Student> filtered = outputStudents.collect();
 		System.out.println(filtered.toString());
 	}
 
