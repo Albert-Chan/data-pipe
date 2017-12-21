@@ -59,6 +59,10 @@ public class ConnectionPool {
 		public InvalidTableNameException(String msg) {
 			super(msg);
 		}
+		
+		public InvalidTableNameException(String message, Throwable cause) {
+			super(message, cause);
+		}
 	}
 
 }
