@@ -76,4 +76,8 @@ public class HDFSUtil {
 	public static void rename(String oldPath, String newPath) throws IOException, URISyntaxException {
 		getFileSystem(oldPath).rename(new Path(oldPath), new Path(newPath));
 	}
+	
+	public static void rename(Path oldPath, Path newPath) throws IOException, URISyntaxException {
+		getFileSystem(oldPath.toString()).rename(oldPath, newPath);
+	}
 }
