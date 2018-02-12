@@ -24,28 +24,27 @@ public class TimeWindow implements Serializable {
 		tw.startTime = startTime;
 		return tw;
 	}
-
-	public static TimeWindow from(TimeWindow t) {
-		return of(t.startTime, t.interval);
-	}
-
-	public static TimeWindow interval(Duration interval) {
-		TimeWindow tw = new TimeWindow(interval);
-		tw.startTime = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
-		return tw;
-	}
-
-	public TimeWindow withStart(String time, String pattern) {
+	
+	public static TimeWindow of(String time, String pattern, Duration interval) {
 		LocalDateTime startTime = LocalDateTime.parse(time, FastDateTimeFormatter.ofPattern(pattern));
 		return of(startTime, interval);
 	}
 
-	public TimeWindow withStart(LocalDateTime startTime) {
+	public static TimeWindow of(long timestamp, Duration interval) {
+		LocalDateTime startTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
 		return of(startTime, interval);
 	}
 
-	public TimeWindow withStart(long timestamp) {
-		LocalDateTime startTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+	public static TimeWindow from(TimeWindow t) {
+		return of(t.startTime, t.interval);
+	}
+	
+	private TimeWindow withStart(LocalDateTime startTime) {
+		return of(startTime, interval);
+	}
+
+	public static TimeWindow interval(Duration interval) {
+		LocalDateTime startTime = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
 		return of(startTime, interval);
 	}
 
@@ -66,11 +65,11 @@ public class TimeWindow implements Serializable {
 	/**
 	 * Gets the time window index within a day, indexed from 0.
 	 * 
-	 * @param idateTime
+	 * @param dateTime
 	 *            the date time need to get time window index.
 	 * @return the time window index
 	 */
-	public long getTimeWindowIndexInDayRange(LocalDateTime dateTime) {
+	public long getDailyTimeWindowIndex(LocalDateTime dateTime) {
 		return getTimeWindowIndex(dateTime, RangeAdjusters.firstSecondOfDay());
 	}
 

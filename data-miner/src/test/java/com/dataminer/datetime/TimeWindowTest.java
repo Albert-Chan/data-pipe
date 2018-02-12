@@ -19,6 +19,6 @@ public class TimeWindowTest {
 		assertEquals(LocalDateTime.of(2017, 5, 15, 11, 15, 0), right);
 		
 		assertEquals(1660940, tw.getTimeWindowIndex(aTime));
-		assertEquals(44, tw.getTimeWindowIndexInDayRange(aTime));
+		assertEquals(44, tw.getDailyTimeWindowIndex(aTime));
 	}
 }
