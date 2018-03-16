@@ -10,8 +10,12 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.log4j.Logger;
 
 import com.dataminer.configuration.ConfigManager;
-import com.dataminer.constants.Constants;
 
+@Deprecated
+/**
+ * As we switched to log4j's Kafka appender, we don't use this trigger any more.
+ *
+ */
 public class AppEventTrigger {
 	protected static final Logger LOG = Logger.getLogger(AppEventTrigger.class);
 
@@ -70,10 +74,6 @@ public class AppEventTrigger {
 		if (null != producer) {
 			producer.close();
 		}
-	}
-
-	public void send(Message msg) {
-		send(msg.getKey(), msg.getMessage());
 	}
 
 	private void send(String key, String message) {

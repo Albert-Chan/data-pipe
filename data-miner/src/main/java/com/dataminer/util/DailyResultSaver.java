@@ -9,7 +9,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
 
-import com.dataminer.constants.AnalyticTimeType;
+import com.dataminer.constants.AnalyticTypes;
 
 public class DailyResultSaver {
 	private JavaSparkContext ctx;
@@ -54,7 +54,7 @@ public class DailyResultSaver {
 
 			// export to Database
 			LocalDate date = LocalDate.parse(analyticDay, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-			DataFrame2DBUtil.dataFrame2DB(df, tableName.get(), date, AnalyticTimeType.BY_DAY);
+			DataFrame2DBUtil.dataFrame2DB(df, tableName.get(), date, AnalyticTypes.BY_DAY);
 		}
 	}
 	
@@ -68,7 +68,7 @@ public class DailyResultSaver {
 		if (tableName.isPresent()) {
 			// export to Database
 			LocalDate date = LocalDate.parse(analyticDay, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-			DataFrame2DBUtil.dataFrame2DB(df, tableName.get(), date, AnalyticTimeType.BY_DAY);
+			DataFrame2DBUtil.dataFrame2DB(df, tableName.get(), date, AnalyticTypes.BY_DAY);
 		}
 	}
 	

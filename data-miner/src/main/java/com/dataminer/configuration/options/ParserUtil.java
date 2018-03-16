@@ -1,6 +1,6 @@
 package com.dataminer.configuration.options;
 
-import static com.dataminer.constants.Constants.YMD_FORMAT;
+import static com.dataminer.constants.DateTimeFormats.YMD_FORMAT;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

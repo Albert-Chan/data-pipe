@@ -8,9 +8,6 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-import com.dataminer.monitor.AppEventTrigger;
-import com.dataminer.monitor.MessageCombiner;
-
 public class Example {
 
 	private static final JavaSparkContext ctx = createContext();
@@ -59,25 +56,9 @@ public class Example {
 		filtered.toString();
 		System.out.println(filtered.toString());
 	};
-
-	private static final AppEventTrigger TRIGGER = AppEventTrigger.get();
 	
-	public static void main(String[] args) {
-		
-		/**
-		 * args includes:
-		 * appId, appName, overall options
-		 */
-		MessageCombiner mc = new MessageCombiner();
-		mc.partOfKey("appId", JavaSparkContext.toSparkContext(getContext()).applicationId());
-		mc.partOfKey("appName", "CPS based pipeline example");
-		
-		TRIGGER.send(mc.event("action", "appStart"));
-		
+	public static void main(String[] args) {		
 		new InputReader(new AgeFilter(sink)).apply();
-		
-		TRIGGER.send(mc.event("action", "appEnd "));
-		
 	}
 
 }

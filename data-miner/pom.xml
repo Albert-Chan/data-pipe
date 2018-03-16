@@ -7,6 +7,7 @@
 
 	<properties>
 		<spark.version>1.6.2</spark.version>
+		<lombok.version>1.16.18</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -38,7 +39,18 @@
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka-clients</artifactId>
-			<version>0.10.0.1</version>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-streams</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.oracle</groupId>

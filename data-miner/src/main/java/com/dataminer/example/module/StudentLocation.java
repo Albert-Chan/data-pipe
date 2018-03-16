@@ -1,11 +1,11 @@
 package com.dataminer.example.module;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
+import com.dataminer.configuration.options.OptionDef;
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.module.Module;
@@ -23,17 +23,19 @@ public class StudentLocation extends Module {
 	public StudentLocation(String[] args, PipelineContext context) {
 		super(args, context);
 	}
-	
+
 	@Override
 	public Schema getSchema() {
 		return schema;
 	}
 
 	public static void prepareSchema() {
-		List<String> optionDef = Arrays.asList("g,	group,	hasArg, required, , toString,	The application group",
-				"i, input,	hasArg, required, , toString,	The HDFS input path");
+		OptionDef group = OptionDef.builder().longName("group").name("g").hasArg(true).required(true)
+				.valueParser("toString").build();
+		OptionDef input = OptionDef.builder().longName("input").name("i").hasArg(true).required(true)
+				.valueParser("toString").description("The HDFS input path").build();
+		schema.addOptionDefinitions(group, input);
 
-		schema.addOptionsDefinition(optionDef);
 		schema.addOutputSchema(new BindingPort(STUDENT_COUNTRY, JavaRDD.class, "StudentCountry"));
 	}
 
@@ -43,14 +45,15 @@ public class StudentLocation extends Module {
 		System.out.println(input);
 		// JavaRDD<String> output = context.textFile(input);
 
-		JavaRDD<StudentCountry> output = context.getJavaSparkContext().parallelize(Arrays.asList("S1,USA", "S2,CHN", "S3,GER")).map(line -> {
-			String[] attrs = line.split(",");
-			return new StudentCountry(attrs[0], attrs[1]);
-		});
+		JavaRDD<StudentCountry> output = context.getJavaSparkContext()
+				.parallelize(Arrays.asList("S1,USA", "S2,CHN", "S3,GER")).map(line -> {
+					String[] attrs = line.split(",");
+					return new StudentCountry(attrs[0], attrs[1]);
+				});
 
 		addOutputValue(STUDENT_COUNTRY, output);
 	}
-	
+
 	public static JavaRDD<StudentCountry> source(JavaSparkContext context) {
 		return context.parallelize(Arrays.asList("S1,USA", "S2,CHN", "S3,GER")).map(line -> {
 			String[] attrs = line.split(",");

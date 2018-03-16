@@ -1,10 +1,8 @@
 package com.dataminer.example.module;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.spark.api.java.JavaRDD;
 
+import com.dataminer.configuration.options.OptionDef;
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.module.Module;
@@ -26,8 +24,9 @@ public class RDDJoin extends Module {
 	}
 
 	public static void prepareSchema() {
-		List<String> optionDef = Arrays.asList("g,	group,	hasArg,	required, , toString, The application group name");
-		schema.addOptionsDefinition(optionDef);
+		OptionDef group = OptionDef.builder().longName("group").name("g").hasArg(true).required(true)
+				.valueParser("toString").build();
+		schema.addOptionDefinitions(group);
 		schema.addInputSchema(new BindingPort(FILTERED_STUDENT, JavaRDD.class, "Student"));
 		schema.addInputSchema(new BindingPort(STUDENT_COUNTRY, JavaRDD.class, "studentCountry"));
 

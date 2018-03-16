@@ -1,10 +1,8 @@
 package com.dataminer.example.module;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.spark.api.java.JavaRDD;
 
+import com.dataminer.configuration.options.OptionDef;
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.module.Module;
@@ -25,8 +23,9 @@ public class StudentGenerator extends Module {
 	}
 
 	public static void prepareSchema() {
-		List<String> optionDef = Arrays.asList("g,	group,	hasArg, required, , toString,	The application group");
-		schema.addOptionsDefinition(optionDef);
+		OptionDef group = OptionDef.builder().longName("group").name("g").hasArg(true).required(true)
+				.valueParser("toString").build();
+		schema.addOptionDefinitions(group);
 		schema.addInputSchema(new BindingPort(HDFS_INPUT, JavaRDD.class, "String"));
 		schema.addOutputSchema(new BindingPort(ALL_STUDENT, JavaRDD.class, "Student"));
 	}
@@ -42,7 +41,7 @@ public class StudentGenerator extends Module {
 		JavaRDD<Student> output = generateStudent((JavaRDD<String>) getInputValue(HDFS_INPUT));
 		addOutputValue(ALL_STUDENT, output);
 	}
-	
+
 	public static JavaRDD<Student> generateStudent(JavaRDD<String> hdfsInput) {
 		return hdfsInput.map(line -> {
 			String[] attrs = line.split(",");

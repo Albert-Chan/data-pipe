@@ -6,7 +6,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import com.clearspring.analytics.util.Lists;
-import com.dataminer.constants.AnalyticTimeType;
+import com.dataminer.constants.AnalyticTypes;
 import com.dataminer.db.ConnectionPools;
 
 import scala.Tuple3;
@@ -14,7 +14,7 @@ import scala.Tuple3;
 public class SamplingExpansionUtil {
 
 	public static List<Tuple3<String, Float, String>> getSamplingExpansion(String outputTable, LocalDate date,
-			AnalyticTimeType type) throws SQLException {
+			AnalyticTypes type) throws SQLException {
 		switch (type) {
 		case BY_MONTH:
 			date = date.with(TemporalAdjusters.lastDayOfMonth());

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.dataminer.configuration.options.OptionsParser;
+import com.dataminer.configuration.options.Options;
 import com.dataminer.configuration.options.OptionsParser.OptionsParseException;
 import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildException;
 import com.dataminer.configuration.options.ParsedOptions;
@@ -113,8 +113,7 @@ public abstract class Module {
 
 	public boolean validate() {
 		try {
-			OptionsParser parser = new OptionsParser(getSchema().getOptionsDefinition());
-			parsedOptions = parser.parse(args);
+			parsedOptions = Options.of(getSchema().getOptionDefinitions()).parse(args);
 		} catch (OptionsParserBuildException | OptionsParseException e) {
 			// logger...
 			return false;

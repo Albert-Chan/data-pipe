@@ -7,16 +7,22 @@ import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildExcep
 
 public class Options {
 
-	List<String> optionDefs;
 	OptionsParser parser;
 
 	private Options(List<String> optionDefs) throws OptionsParserBuildException {
-		this.optionDefs = optionDefs;
+		this.parser = new OptionsParser(optionDefs);
+	}
+
+	private Options(OptionDef... optionDefs) throws OptionsParserBuildException {
 		this.parser = new OptionsParser(optionDefs);
 	}
 
 	public static Options define(List<String> optionDefs) throws OptionsParserBuildException {
 		return new Options(optionDefs);
+	}
+
+	public static Options of(OptionDef... defs) throws OptionsParserBuildException {
+		return new Options(defs);
 	}
 
 	public ParsedOptions parse(String[] args) throws OptionsParseException {

@@ -1,11 +1,11 @@
 package com.dataminer.example.module;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
+import com.dataminer.configuration.options.OptionDef;
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.framework.pipeline.PipelineContext;
 import com.dataminer.module.Module;
@@ -30,10 +30,11 @@ public class HDFSReader extends Module {
 	}
 
 	public static void prepareSchema() {
-		List<String> optionDef = Arrays.asList("g,	group,	hasArg, required, , toString,	The application group",
-				"i, input,	hasArg, required, , toString,	The HDFS input path");
-
-		schema.addOptionsDefinition(optionDef);
+		OptionDef group = OptionDef.builder().longName("group").name("g").hasArg(true).required(true)
+				.valueParser("toString").build();
+		OptionDef input = OptionDef.builder().longName("input").name("i").hasArg(true).required(true)
+				.valueParser("toString").description("The HDFS input path").build();
+		schema.addOptionDefinitions(group, input);
 		schema.addOutputSchema(new BindingPort(HDFS_OUTPUT, JavaRDD.class, "String"));
 	}
 

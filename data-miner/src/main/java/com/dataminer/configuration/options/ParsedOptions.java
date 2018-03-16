@@ -17,8 +17,8 @@ public class ParsedOptions {
 	}
 
 	/**
-	 * Gets the calculated value. If the value from array args is failed to
-	 * convert, throws an exception.
+	 * Gets the calculated value. If the value from the arguments array is failed to be
+	 * converted, an exception will be thrown.
 	 * 
 	 * @param optionName
 	 *            the long name of the Option

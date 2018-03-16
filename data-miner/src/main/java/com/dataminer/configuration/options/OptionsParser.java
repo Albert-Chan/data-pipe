@@ -3,6 +3,7 @@ package com.dataminer.configuration.options;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -18,12 +19,6 @@ import org.apache.commons.cli.ParseException;
 
 import scala.Tuple2;
 
-/**
- * The option parser. The option definition is a comma separated string in the
- * format of <i>opt, longOpt, hasArg, isRequired, defaultValue, valueParser,
- * description</i>
- * 
- */
 public class OptionsParser {
 	private Map<String, OptionDef> optionDefMap;
 
@@ -36,29 +31,33 @@ public class OptionsParser {
 	public OptionsParser(List<String> optDefs) throws OptionsParserBuildException {
 		buildOptionMap(optDefs.stream());
 	}
-
+	
+	public OptionsParser(OptionDef... defs) throws OptionsParserBuildException {
+		optionDefMap = new HashMap<String, OptionDef>();
+		for (OptionDef optDef : defs) {
+			optionDefMap.put(optDef.getOption().getLongOpt(), optDef);
+		}
+	}
+	
 	private void buildOptionMap(Stream<String> stream) throws OptionsParserBuildException {
 		try {
 			optionDefMap = stream.filter(line -> line.length() > 0).map(line -> {
-				String[] props = line.split(",");
-				String opt = props[0].trim();
-				String longOpt = props[1].trim();
-				boolean hasArg = OptionDef.HAS_ARG.equals(props[2].trim());
-				String description = props[6].trim();
-				Option option = new Option(opt, longOpt, hasArg, description);
-				boolean required = OptionDef.REQUIRED.equals(props[3].trim());
-				option.setRequired(required);
-				String defaultValue = props[4].trim();
-				String valueParser = props[5].trim();
-				OptionDef optDef = new OptionDef(option, valueParser);
-				optDef.setDefaultValue(defaultValue);
-				return new Tuple2<String, OptionDef>(longOpt, optDef);
+				OptionDef optDef = OptionDef.from(line);
+				return new Tuple2<String, OptionDef>(optDef.getOption().getLongOpt(), optDef);
 			}).collect(Collectors.toMap(t -> t._1, t -> t._2));
 		} catch (Exception e) {
+			// any runtime exception
 			throw new OptionsParserBuildException(e);
 		}
 	}
 
+	/**
+	 * Parses the options from an org.apache.commons.cli.CommandLineParser
+	 * accepted string
+	 * @param args
+	 * @return
+	 * @throws OptionsParseException
+	 */
 	public ParsedOptions parse(String[] args) throws OptionsParseException {
 		CommandLineParser parser = new BasicParser();
 		CommandLine cmd;

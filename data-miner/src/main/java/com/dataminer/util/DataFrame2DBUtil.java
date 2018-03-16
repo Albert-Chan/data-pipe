@@ -14,8 +14,8 @@ import org.apache.log4j.Logger;
 import org.apache.spark.sql.DataFrame;
 
 import com.dataminer.configuration.ConfigManager;
-import com.dataminer.constants.AnalyticTimeType;
-import com.dataminer.constants.Constants;
+import com.dataminer.constants.AnalyticTypes;
+import com.dataminer.constants.DateTimeFormats;
 import com.dataminer.db.ConnectionPool;
 import com.dataminer.db.ConnectionPools;
 
@@ -41,7 +41,7 @@ public class DataFrame2DBUtil {
 	 * @param type
 	 * @throws Exception
 	 */
-	public static void dataFrame2DB(DataFrame df, String embeddedTableName, LocalDate date, AnalyticTimeType type)
+	public static void dataFrame2DB(DataFrame df, String embeddedTableName, LocalDate date, AnalyticTypes type)
 			throws Exception {
 		dataFrame2DB(df, embeddedTableName, date, type, true);
 	}
@@ -63,11 +63,11 @@ public class DataFrame2DBUtil {
 	 * @throws Exception
 	 */
 	public static void dataFrame2DBWithoutDeletion(DataFrame df, String embeddedTableName, LocalDate date,
-			AnalyticTimeType type) throws Exception {
+			AnalyticTypes type) throws Exception {
 		dataFrame2DB(df, embeddedTableName, date, type, false);
 	}
 
-	private static void dataFrame2DB(DataFrame df, String embeddedTableName, LocalDate date, AnalyticTimeType type,
+	private static void dataFrame2DB(DataFrame df, String embeddedTableName, LocalDate date, AnalyticTypes type,
 			boolean needDeletion) throws Exception {
 		// mapping from embedded table/field name to the names in configuration.
 		LOG.debug(" tableNameBeforeMapping " + embeddedTableName);
@@ -95,7 +95,7 @@ public class DataFrame2DBUtil {
 	 * @throws Exception
 	 */
 	private static void deleteDataInDBWithSamePeriod(String outputTable, LocalDate analyticPeriod,
-			String timeIndexName, AnalyticTimeType type) throws Exception {
+			String timeIndexName, AnalyticTypes type) throws Exception {
 		String tableFilter;
 		switch (type) {
 		case BY_MONTH:
@@ -104,11 +104,11 @@ public class DataFrame2DBUtil {
 			checkAndDelete(tableFilter);
 			break;
 		case BY_DAY:
-			String fromDate = analyticPeriod.format(DateTimeFormatter.ofPattern(Constants.YMDHMS_FORMAT));
-			String toDate = analyticPeriod.plusDays(1).format(DateTimeFormatter.ofPattern(Constants.YMDHMS_FORMAT));
+			String fromDate = analyticPeriod.format(DateTimeFormatter.ofPattern(DateTimeFormats.YMDHMS_FORMAT));
+			String toDate = analyticPeriod.plusDays(1).format(DateTimeFormatter.ofPattern(DateTimeFormats.YMDHMS_FORMAT));
 			tableFilter = String.format(" from %s where %s >= to_date('%s','%s') and %s < to_date('%s','%s')",
-					outputTable, timeIndexName, fromDate, Constants.ORACLE_DATA_FORMAT, timeIndexName, toDate,
-					Constants.ORACLE_DATA_FORMAT);
+					outputTable, timeIndexName, fromDate, DateTimeFormats.ORACLE_DATA_FORMAT, timeIndexName, toDate,
+					DateTimeFormats.ORACLE_DATA_FORMAT);
 			checkAndDelete(tableFilter);
 			break;
 		default:
@@ -134,7 +134,7 @@ public class DataFrame2DBUtil {
 	}
 
 	private static DataFrame withColumnExpanded(DataFrame dataFrame, String outputTable, LocalDate date,
-			AnalyticTimeType type) throws Exception {
+			AnalyticTypes type) throws Exception {
 		// get the sampling expansion <columnName, multiplier, condition>
 		List<Tuple3<String, Float, String>> columnExpansion = SamplingExpansionUtil.getSamplingExpansion(outputTable,
 				date, type);

@@ -1,18 +1,19 @@
 package com.dataminer.schema;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class Schema {
-	private List<String> optionDef;
+import com.dataminer.configuration.options.OptionDef;
 
-	public List<String> getOptionsDefinition() {
-		return optionDef;
+public class Schema {
+	private OptionDef[] optionDefs;
+
+	public OptionDef[] getOptionDefinitions() {
+		return optionDefs;
 	}
 
-	public void addOptionsDefinition(List<String> optionDef) {
-		this.optionDef = optionDef;
+	public void addOptionDefinitions(OptionDef... optionDefs) {
+		this.optionDefs = optionDefs;
 	}
 
 	private Map<String, BindingPort> input = new HashMap<>();

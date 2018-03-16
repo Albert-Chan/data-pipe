@@ -1,5 +1,5 @@
 package com.dataminer.constants;
 
-public enum AnalyticTimeType {
+public enum AnalyticTypes {
 	BY_DAY, BY_MONTH, BY_PARAM
 }
