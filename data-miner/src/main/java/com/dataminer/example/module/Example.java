@@ -5,7 +5,7 @@ import com.dataminer.module.ModuleFactory.ModuleCreationException;
 
 public class Example {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		Pipeline pipe = new Pipeline("example");
 

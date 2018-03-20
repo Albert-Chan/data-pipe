@@ -1,10 +1,13 @@
 package com.dataminer.example.module;
 
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dataminer.configuration.options.OptionDef;
 import com.dataminer.configuration.options.ParsedOptions;
-import com.dataminer.framework.pipeline.PipelineContext;
+import com.dataminer.example.pojo.Student;
+import com.dataminer.example.pojo.StudentCountry;
+import com.dataminer.example.pojo.StudentFullProperties;
 import com.dataminer.module.Module;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
@@ -33,8 +36,8 @@ public class RDDJoin extends Module {
 		schema.addOutputSchema(new BindingPort(FILTERED_STUDENT_WITH_COUNTRY, JavaRDD.class, "StudentFullProperties"));
 	}
 
-	public RDDJoin(String[] args, PipelineContext context) {
-		super(args, context);
+	public RDDJoin(JavaSparkContext ctx, ParsedOptions options) {
+		super(ctx, options);
 	}
 
 	@Override
@@ -43,7 +46,7 @@ public class RDDJoin extends Module {
 	}
 
 	@Override
-	public void exec(ParsedOptions parsedOptions) {
+	public void exec() {
 		@SuppressWarnings("unchecked")
 		JavaRDD<Student> filtered = ((JavaRDD<Student>) getInputValue(FILTERED_STUDENT));
 		@SuppressWarnings("unchecked")

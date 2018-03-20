@@ -1,12 +1,14 @@
 package com.dataminer.example.module;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dataminer.configuration.options.OptionDef;
 import com.dataminer.configuration.options.ParsedOptions;
-import com.dataminer.framework.pipeline.PipelineContext;
+import com.dataminer.example.pojo.Student;
 import com.dataminer.module.SinkModule;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
@@ -26,8 +28,12 @@ public class Collector extends SinkModule {
 		schema.addInputSchema(new BindingPort(OUTPUT_STUDENT, JavaRDD.class, "Student"));
 	}
 
-	public Collector(String[] args, PipelineContext context) {
-		super(args, context);
+	public Collector(JavaSparkContext ctx, ParsedOptions options) {
+		super(ctx, options);
+	}
+	
+	public Collector(JavaSparkContext ctx, Map options) {
+		super(ctx, options);
 	}
 
 	@Override
@@ -36,7 +42,7 @@ public class Collector extends SinkModule {
 	}
 
 	@Override
-	public void exec(ParsedOptions parsedOptions) {
+	public void exec() {
 		@SuppressWarnings("unchecked")
 		JavaRDD<Student> outputStudents = (JavaRDD<Student>) getInputValue(OUTPUT_STUDENT);
 		showResult(outputStudents);

@@ -1,10 +1,11 @@
 package com.dataminer.example.module;
 
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dataminer.configuration.options.OptionDef;
 import com.dataminer.configuration.options.ParsedOptions;
-import com.dataminer.framework.pipeline.PipelineContext;
+import com.dataminer.example.pojo.Student;
 import com.dataminer.module.Module;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
@@ -18,8 +19,8 @@ public class StudentGenerator extends Module {
 		prepareSchema();
 	}
 
-	public StudentGenerator(String[] args, PipelineContext context) {
-		super(args, context);
+	public StudentGenerator(JavaSparkContext ctx, ParsedOptions options) {
+		super(ctx, options);
 	}
 
 	public static void prepareSchema() {
@@ -36,7 +37,7 @@ public class StudentGenerator extends Module {
 	}
 
 	@Override
-	public void exec(ParsedOptions parsedOptions) {
+	public void exec() {
 		@SuppressWarnings("unchecked")
 		JavaRDD<Student> output = generateStudent((JavaRDD<String>) getInputValue(HDFS_INPUT));
 		addOutputValue(ALL_STUDENT, output);

@@ -1,6 +1,7 @@
 package com.dataminer.framework.pipeline;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.dataminer.module.Module;
@@ -15,8 +16,6 @@ public class Pipeline {
 
 	public Pipeline(String pipeName) {
 		this.context = new PipelineContext(pipeName);
-//		mc.partOfKey("appId", JavaSparkContext.toSparkContext(context.getJavaSparkContext()).applicationId());
-//		mc.partOfKey("pipeName", "pipeline example");
 	}
 	
 	public <T extends Module> T createModule(Class<T> moduleName, String[] args)
@@ -27,8 +26,17 @@ public class Pipeline {
 		}
 		return module;
 	}
+	
+	public <T extends Module> T createModule(Class<T> moduleName, Map options)
+			throws ModuleCreationException {
+		T module = ModuleFactory.create(moduleName, options, context);
+		if (module instanceof SinkModule) {
+			sinkers.add((SinkModule) module);
+		}
+		return module;
+	}
 
-	public void run() {
+	public void run() throws Exception {
 		for (SinkModule sink : sinkers) {
 			sink.doTask();
 		}

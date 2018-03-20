@@ -1,27 +1,21 @@
-package com.dataminer.example.module;
+package com.dataminer.example.pojo;
 
 import java.io.Serializable;
 
-public class StudentFullProperties implements Serializable {
+public class StudentCountry implements Serializable {
 	
 	private static final long serialVersionUID = -6880316066852006432L;
 	
 	private String name;
-	private int age;
 	private String country;
 
-	public StudentFullProperties(String name, int age, String country) {
+	public StudentCountry(String name, String country) {
 		this.name = name;
-		this.age = age;
 		this.country = country;
 	}
 
 	public String getName() {
 		return name;
-	}
-	
-	public int getAge() {
-		return age;
 	}
 
 	public String getCountry() {
@@ -29,7 +23,7 @@ public class StudentFullProperties implements Serializable {
 	}
 
 	public String toString() {
-		return name + "," + age + "," + country;
+		return name + "," + country;
 	}
 
 }

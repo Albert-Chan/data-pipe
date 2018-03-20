@@ -1,4 +1,4 @@
-package com.dataminer.example.module;
+package com.dataminer.example.pojo;
 
 import java.io.Serializable;
 

@@ -7,7 +7,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dataminer.configuration.options.OptionDef;
 import com.dataminer.configuration.options.ParsedOptions;
-import com.dataminer.framework.pipeline.PipelineContext;
+import com.dataminer.example.pojo.StudentCountry;
 import com.dataminer.module.Module;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
@@ -20,8 +20,8 @@ public class StudentLocation extends Module {
 		prepareSchema();
 	}
 
-	public StudentLocation(String[] args, PipelineContext context) {
-		super(args, context);
+	public StudentLocation(JavaSparkContext ctx, ParsedOptions options) {
+		super(ctx, options);
 	}
 
 	@Override
@@ -40,8 +40,8 @@ public class StudentLocation extends Module {
 	}
 
 	@Override
-	public void exec(ParsedOptions parsedOptions) {
-		String input = parsedOptions.get("input");
+	public void exec() {
+		String input = options.get("input");
 		System.out.println(input);
 		// JavaRDD<String> output = context.textFile(input);
 

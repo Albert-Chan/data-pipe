@@ -1,11 +1,13 @@
 package com.dataminer.module;
 
-import com.dataminer.framework.pipeline.PipelineContext;
+import org.apache.spark.api.java.JavaSparkContext;
+
+import com.dataminer.configuration.options.ParsedOptions;
 
 public abstract class SinkModule extends Module {
 
-	public SinkModule(String[] args, PipelineContext context) {
-		super(args, context);
+	public SinkModule(JavaSparkContext ctx, ParsedOptions options) {
+		super(ctx, options);
 	}
 
 }

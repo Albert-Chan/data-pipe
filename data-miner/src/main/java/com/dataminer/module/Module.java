@@ -6,28 +6,58 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.spark.api.java.JavaSparkContext;
+
 import com.dataminer.configuration.options.Options;
 import com.dataminer.configuration.options.OptionsParser.OptionsParseException;
 import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildException;
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.framework.pipeline.PipelineContext;
+import com.dataminer.monitor.MonitorContext;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
 
 public abstract class Module {
-
 	protected String name;
-
-	protected abstract Schema getSchema();
-
-	protected PipelineContext context;
-	protected ParsedOptions parsedOptions;
+	protected List<Module> parents = new ArrayList<>();
 
 	protected boolean finished = false;
 
-	protected List<Module> parents = new ArrayList<>();
+	protected abstract Schema getSchema();
 
-	protected String[] args;
+	protected List<String> optionDefs;
+	protected Options optionSchema;
+
+	protected ParsedOptions options;
+
+	protected PipelineContext context;
+	protected JavaSparkContext ctx;
+	protected MonitorContext monitorContext;
+
+	public Module(JavaSparkContext ctx, String[] args) throws OptionsParserBuildException, OptionsParseException {
+		this.ctx = ctx;
+		this.optionSchema = Options.define(optionDefs);
+		this.options = optionSchema.parse(args);
+		this.monitorContext = genMonitorContext(ctx, options);
+	}
+	
+	public Module(JavaSparkContext ctx, Map options) throws OptionsParserBuildException, OptionsParseException {
+		this.ctx = ctx;
+		this.optionSchema = Options.define(optionDefs);
+
+		this.monitorContext = genMonitorContext(ctx, options);
+	}
+	
+
+	public Module(JavaSparkContext ctx, ParsedOptions options) {
+		this.ctx = ctx;
+		this.options = options;
+		this.monitorContext = genMonitorContext(ctx, options);
+	}
+
+	protected MonitorContext genMonitorContext(JavaSparkContext ctx, ParsedOptions options) {
+		return MonitorContext.of(JavaSparkContext.toSparkContext(ctx).applicationId(), this.getClass().getName(), null);
+	}
 
 	public void addParent(Module parent) {
 		parents.add(parent);
@@ -39,11 +69,6 @@ public abstract class Module {
 
 	public String getName() {
 		return name;
-	}
-
-	public Module(String[] args, PipelineContext context) {
-		this.context = context;
-		this.args = args;
 	}
 
 	private Map<String, ModuleBindingPort> binding = new HashMap<>();
@@ -98,7 +123,7 @@ public abstract class Module {
 		}
 	}
 
-	public void doTask() {
+	public void doTask() throws Exception {
 		if (finished) {
 			return;
 		}
@@ -107,17 +132,17 @@ public abstract class Module {
 		}
 		valueBind();
 		if (validate()) {
-			exec(parsedOptions);
+			exec();
 		}
 	}
 
 	public boolean validate() {
-		try {
-			parsedOptions = Options.of(getSchema().getOptionDefinitions()).parse(args);
-		} catch (OptionsParserBuildException | OptionsParseException e) {
-			// logger...
-			return false;
-		}
+		// try {
+		// parsedOptions = Options.of(getSchema().getOptionDefinitions()).parse(args);
+		// } catch (OptionsParserBuildException | OptionsParseException e) {
+		// // logger...
+		// return false;
+		// }
 
 		Map<String, BindingPort> inputSchemas = getSchema().getInputSchemas();
 		for (String name : inputSchemas.keySet()) {
@@ -131,6 +156,6 @@ public abstract class Module {
 		return true;
 	}
 
-	protected abstract void exec(ParsedOptions options);
+	protected abstract void exec() throws Exception;
 
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.clearspring.analytics.util.Lists;
-import com.dataminer.example.module.Student;
+import com.dataminer.example.pojo.Student;
 
 public class SQLExceutorTest {
 	@Test
