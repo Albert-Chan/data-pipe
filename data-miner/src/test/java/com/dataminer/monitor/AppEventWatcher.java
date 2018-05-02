@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.dataminer.monitor.Constants;
+
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
