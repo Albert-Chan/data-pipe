@@ -27,9 +27,9 @@ public class Pipeline {
 		return module;
 	}
 	
-	public <T extends Module> T createModule(Class<T> moduleName, Map options)
+	public <T extends Module> T createModule(Class<T> moduleName, Map<String, Object> props)
 			throws ModuleCreationException {
-		T module = ModuleFactory.create(moduleName, options, context);
+		T module = ModuleFactory.create(moduleName, props, context);
 		if (module instanceof SinkModule) {
 			sinkers.add((SinkModule) module);
 		}

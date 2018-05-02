@@ -11,18 +11,18 @@ public class ModuleFactory {
 			throws ModuleCreationException {
 		try {
 			Constructor<T> constructor = moduleName.getConstructor(String[].class, PipelineContext.class);
-			return constructor.newInstance(args, context);
+			return constructor.newInstance(context, args);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			throw new ModuleCreationException(e);
 		}
 	}
 
-	public static <T extends Module> T create(Class<T> moduleName, Map options, PipelineContext context)
+	public static <T extends Module> T create(Class<T> moduleName, Map<String, Object> props, PipelineContext context)
 			throws ModuleCreationException {
 		try {
 			Constructor<T> constructor = moduleName.getConstructor(String[].class, PipelineContext.class);
-			return constructor.newInstance(options, context);
+			return constructor.newInstance(context, props);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
 			throw new ModuleCreationException(e);

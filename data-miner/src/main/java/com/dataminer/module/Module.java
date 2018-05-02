@@ -17,6 +17,9 @@ import com.dataminer.monitor.MonitorContext;
 import com.dataminer.schema.Schema;
 import com.dataminer.schema.Schema.BindingPort;
 
+/**
+ * The inputSchema and outputSchema will not be in the options.
+ */
 public abstract class Module {
 	protected String name;
 	protected List<Module> parents = new ArrayList<>();
@@ -40,14 +43,11 @@ public abstract class Module {
 		this.options = optionSchema.parse(args);
 		this.monitorContext = genMonitorContext(ctx, options);
 	}
-	
-	public Module(JavaSparkContext ctx, Map options) throws OptionsParserBuildException, OptionsParseException {
-		this.ctx = ctx;
-		this.optionSchema = Options.define(optionDefs);
 
+	public Module(JavaSparkContext ctx, Map<String, Object> props) {
+		this.ctx = ctx;
 		this.monitorContext = genMonitorContext(ctx, options);
 	}
-	
 
 	public Module(JavaSparkContext ctx, ParsedOptions options) {
 		this.ctx = ctx;
@@ -57,6 +57,11 @@ public abstract class Module {
 
 	protected MonitorContext genMonitorContext(JavaSparkContext ctx, ParsedOptions options) {
 		return MonitorContext.of(JavaSparkContext.toSparkContext(ctx).applicationId(), this.getClass().getName(), null);
+	}
+
+	protected MonitorContext genMonitorContext(JavaSparkContext ctx, Map<String, Object> props) {
+		return MonitorContext.of(JavaSparkContext.toSparkContext(ctx).applicationId(), this.getClass().getName(),
+				props);
 	}
 
 	public void addParent(Module parent) {
@@ -138,10 +143,10 @@ public abstract class Module {
 
 	public boolean validate() {
 		// try {
-		// parsedOptions = Options.of(getSchema().getOptionDefinitions()).parse(args);
+		// 		parsedOptions = Options.of(getSchema().getOptionDefinitions()).parse(args);
 		// } catch (OptionsParserBuildException | OptionsParseException e) {
-		// // logger...
-		// return false;
+		//		// logger...
+		// 		return false;
 		// }
 
 		Map<String, BindingPort> inputSchemas = getSchema().getInputSchemas();

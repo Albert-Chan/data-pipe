@@ -15,8 +15,6 @@ public class AgeFilter extends Module {
 	public static final String ALL_STUDENT = "allStudent";
 	public static final String FILTERED_STUDENT = "filteredStudent";
 	
-	
-	
 	private static Schema schema = new Schema();
 	static {
 		prepareSchema();

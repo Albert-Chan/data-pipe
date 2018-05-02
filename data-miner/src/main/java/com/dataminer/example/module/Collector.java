@@ -7,6 +7,8 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
 import com.dataminer.configuration.options.OptionDef;
+import com.dataminer.configuration.options.OptionsParser.OptionsParseException;
+import com.dataminer.configuration.options.OptionsParser.OptionsParserBuildException;
 import com.dataminer.configuration.options.ParsedOptions;
 import com.dataminer.example.pojo.Student;
 import com.dataminer.module.SinkModule;
@@ -32,8 +34,8 @@ public class Collector extends SinkModule {
 		super(ctx, options);
 	}
 	
-	public Collector(JavaSparkContext ctx, Map options) {
-		super(ctx, options);
+	public Collector(JavaSparkContext ctx, Map<String, Object> props) throws OptionsParserBuildException, OptionsParseException {
+		super(ctx, props);
 	}
 
 	@Override
