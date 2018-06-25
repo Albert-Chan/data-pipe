@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class TransactionExecutor {
+
 	private Connection conn;
 	private ArrayList<SQLExecutor> executors = new ArrayList<>();
 
@@ -22,7 +23,8 @@ public class TransactionExecutor {
 		return this;
 	}
 
-	public TransactionExecutor append(String sqlPattern, PSApplyParam<PreparedStatement> paramApplyFunc) throws SQLException {
+	public TransactionExecutor append(String sqlPattern, PSApplyParam<PreparedStatement> paramApplyFunc)
+			throws SQLException {
 		executors.add(SQLExecutor.through(conn).sql(sqlPattern).withParam(paramApplyFunc));
 		return this;
 	}
@@ -30,7 +32,7 @@ public class TransactionExecutor {
 	public void executeTransaction() throws SQLException {
 		boolean oldAutoCommit = conn.getAutoCommit();
 		try {
-			if (oldAutoCommit != false) {
+			if (oldAutoCommit) {
 				conn.setAutoCommit(false);
 			}
 			for (SQLExecutor executor : executors) {
@@ -41,9 +43,11 @@ public class TransactionExecutor {
 			if (conn != null) {
 				conn.rollback();
 			}
-		}
-		if (oldAutoCommit != false) {
-			conn.setAutoCommit(oldAutoCommit);
+			throw e;
+		} finally {
+			if (oldAutoCommit) {
+				conn.setAutoCommit(oldAutoCommit);
+			}
 		}
 	}
 

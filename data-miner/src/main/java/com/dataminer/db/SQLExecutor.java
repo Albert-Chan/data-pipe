@@ -24,6 +24,7 @@ public class SQLExecutor {
 		return this;
 	}
 
+	// this is not thread safe
 	public SQLExecutor sql(String sqlPattern) throws SQLException {
 		this.ps = conn.prepareStatement(sqlPattern);
 		return this;

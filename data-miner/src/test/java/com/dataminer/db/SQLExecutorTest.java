@@ -1,15 +1,20 @@
 package com.dataminer.db;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
 
@@ -50,34 +55,33 @@ public class SQLExecutorTest {
 				") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 		// @formatter:on
 		testWrite();
+		testWriteWithParam();
 		testRead();
-		testWithParam();
 	}
 
 	public void testWrite() throws SQLException {
-		SQLExecutor.through(conn).sql(String.format("insert into TBL_TEST values (%d, %d)", System.currentTimeMillis(),
-				(int) (Math.random() * 1000))).executeUpdate();
+		SQLExecutor.through(conn).sql(String.format("insert into TBL_TEST values (%d, %d)", 1, 100)).executeUpdate();
 
 	}
 
 	public void testRead() throws SQLException {
-		List<TestData> output = SQLExecutor.through(conn).sql("select * from TBL_TEST")
-				.executeQueryAndThen(resultSet -> {
-					List<TestData> testData = Lists.newArrayList();
-					while (resultSet.next()) {
-						long timestamp = resultSet.getLong("timestamp");
-						int vol = resultSet.getInt("vol");
+		TestData[] output = SQLExecutor.through(conn).sql("select * from TBL_TEST").executeQueryAndThen(resultSet -> {
+			List<TestData> testData = Lists.newArrayList();
+			while (resultSet.next()) {
+				long timestamp = resultSet.getLong("timestamp");
+				int vol = resultSet.getInt("vol");
 
-						testData.add(new TestData(timestamp, vol));
-					}
-					return testData;
-				});
+				testData.add(new TestData(timestamp, vol));
+			}
+			return testData.toArray(new TestData[0]);
+		});
+		assertArrayEquals(new TestData[] { new TestData(1, 100), new TestData(2, 100) }, output);
 		LOG.info(output);
 	}
 
-	public void testWithParam() throws SQLException {
-		long currentTime = System.currentTimeMillis();
-		int randomInt = (int) (Math.random() * 1000);
+	public void testWriteWithParam() throws SQLException {
+		long currentTime = 2;
+		int randomInt = 100;
 		SQLExecutor.through(conn).sql("insert into TBL_TEST values (?, ?)").withParam(ps -> {
 			ps.setLong(1, currentTime);
 			ps.setInt(2, randomInt);
@@ -87,11 +91,12 @@ public class SQLExecutorTest {
 
 	@Test
 	public void testBatch() throws SQLException {
+		emptyTable();
+
 		ArrayList<Tuple2<Long, Integer>> list = new ArrayList<>();
-		for (int i = 0; i < 10_000; i++) {
-			long currentTime = System.currentTimeMillis();
+		for (int i = 0; i < 1000; i++) {
 			int randomInt = (int) (Math.random() * 1000);
-			Tuple2<Long, Integer> t = new Tuple2<>(currentTime, randomInt);
+			Tuple2<Long, Integer> t = new Tuple2<>(Long.valueOf(i), randomInt);
 			list.add(t);
 		}
 		SQLExecutor.through(conn).sql("insert into TBL_TEST values (?, ?)").executeBatch(list, (ps, ele) -> {
@@ -99,14 +104,32 @@ public class SQLExecutorTest {
 			ps.setInt(2, ele._2);
 			return ps;
 		});
-
 		LOG.info("Test batch done.");
+		assertEquals(1000L, count());
+
+		emptyTable();
+	}
+
+	private void emptyTable() throws SQLException {
+		SQLExecutor.through(conn).sql("delete from TBL_TEST").executeUpdate();
+	}
+
+	private long count() throws SQLException {
+		long count = SQLExecutor.through(conn).sql("select count(*) from TBL_TEST").executeQueryAndThen(rs -> {
+			long recordCount = 0L;
+			while (rs.next()) {
+				recordCount = rs.getLong(1);
+			}
+			return recordCount;
+		});
+		return count;
 	}
 
 	@Test
 	public void testTransaction() throws SQLException {
-		boolean expectAutoCommit = conn.getAutoCommit();
+		emptyTable();
 
+		boolean expectAutoCommit = conn.getAutoCommit();
 		ArrayList<Tuple2<Long, Integer>> list = new ArrayList<>();
 		for (int i = 1; i < 10_000; i++) {
 			long currentTime = System.currentTimeMillis();
@@ -115,14 +138,36 @@ public class SQLExecutorTest {
 			list.add(t);
 		}
 
+		try {
 		// @formatter:off
 		TransactionExecutor.through(conn)
 				.append("insert into TBL_TEST values (1, 2)")
 				.append("insert into TBL_TEST values (2, 2)")
-				.append("insert into TBL_TEST values (3, 2)")
+				.append("insert into TBL_TEST values (3, 3)")
 				.executeTransaction();
 		// @formatter:on
+		} catch (SQLException e) {
+			LOG.error(e);
+		}
 
+		assertEquals(3, count());
+		assertEquals(expectAutoCommit, conn.getAutoCommit());
+
+		// did it once again to throw duplicate key exception
+		try {
+		// @formatter:off
+		TransactionExecutor.through(conn)
+				.append("insert into TBL_TEST values (1, 2)")
+				.append("insert into TBL_TEST values (2, 2)")
+				.append("insert into TBL_TEST values (3, 3)")
+				.executeTransaction();
+		// @formatter:on
+		} catch (SQLException e) {
+			LOG.error(e);
+			assertTrue(true);
+		}
+
+		assertEquals(3, count());
 		// the auto commit flag should not change.
 		assertEquals(expectAutoCommit, conn.getAutoCommit());
 	}
@@ -136,5 +181,15 @@ class TestData {
 	public TestData(long timestamp, int vol) {
 		this.timestamp = timestamp;
 		this.vol = vol;
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
 	}
 }
