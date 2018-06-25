@@ -2,6 +2,7 @@ package com.dataminer.util;
 
 import static org.apache.spark.sql.functions.round;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,8 +17,8 @@ import org.apache.spark.sql.DataFrame;
 import com.dataminer.configuration.ConfigManager;
 import com.dataminer.constants.AnalyticTypes;
 import com.dataminer.constants.DateTimeFormats;
-import com.dataminer.db.ConnectionPool;
 import com.dataminer.db.ConnectionPools;
+import com.dataminer.db.SQLExecutor;
 
 import scala.Tuple3;
 
@@ -117,19 +118,19 @@ public class DataFrame2DBUtil {
 	}
 
 	private static void checkAndDelete(String tableFilter) throws SQLException {
-		ConnectionPool cp = ConnectionPools.get("result");
+		Connection conn = ConnectionPools.get("result").getConnection();
 		String countSQL = "select count(*)" + tableFilter;
-		long count = cp.sql(countSQL).executeQueryAndThen(rs -> {
+		long count = SQLExecutor.through(conn).sql(countSQL).executeQueryAndThen(rs -> {
 			long recordCount = 0L;
 			while (rs.next()) {
 				recordCount = rs.getLong(1);
 			}
 			return recordCount;
 		});
-		
+
 		if (count > 0L) {
 			String deleteSQL = "delete" + tableFilter;
-			cp.sql(deleteSQL).executeUpdate();
+			SQLExecutor.through(conn).sql(deleteSQL).executeUpdate();
 		}
 	}
 
