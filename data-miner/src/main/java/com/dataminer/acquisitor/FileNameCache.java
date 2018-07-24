@@ -26,6 +26,15 @@ public class FileNameCache {
 		}
 	}
 
+	/**
+	 * Checks if the file has been download completely.
+	 * 
+	 * @param fileName
+	 *            the name of the file to be checked
+	 * @param size
+	 *            the current size of the file
+	 * @return true if the file is complete; false if we are not sure.
+	 */
 	public boolean checkStandby(String fileName, long size) {
 		if ((checker == null || checker.check(fileName)) && !isRetrieved(fileName)) {
 			logger.debug("Checking the size of " + fileName);
@@ -46,6 +55,8 @@ public class FileNameCache {
 		if (eldestFile == null || eldestFile.isEmpty()) {
 			return false;
 		}
+		// as the file name contains the timestamp, those elder than the eldestFile will
+		// be considered as expired.
 		return fileName.compareTo(eldestFile) <= 0;
 	}
 

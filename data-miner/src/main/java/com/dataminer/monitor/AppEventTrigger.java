@@ -76,7 +76,7 @@ public class AppEventTrigger {
 		}
 	}
 
-	private void send(String key, String message) {
+	public void send(String key, String message) {
 		if (null == producer) {
 			return;
 		}
