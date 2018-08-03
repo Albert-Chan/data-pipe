@@ -71,6 +71,10 @@ public class ConfigManager {
 		}
 	}
 
+	public Properties getAllProperties() {
+		return allProps;
+	}
+
 	public String getProperty(String name) {
 		return allProps.getProperty(name);
 	}
